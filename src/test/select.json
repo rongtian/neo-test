@@ -1,0 +1,20 @@
+{
+	"test_auth" : true,
+    "test_benefit_model" : true,
+    "test_consensus" : true,
+    "test_erncryption" : true,
+    "test_governance" : true,
+    "test_governance_api" : true,
+    "test_muti_contract" :false,
+    "test_neo_api" :true,
+    "test_neo_param" :true,
+    "test_ong_native" :true,
+    "test_ontid_api" :true,
+    "test_ontid_others" :true,
+    "test_ont_native" :true,
+    "test_restful" :true,
+    "test_rpc" :true,
+    "test_websocket" :true,
+    "test_cost" :true,
+    "test_opcode" :true
+}
