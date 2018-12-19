@@ -15,19 +15,25 @@ from utils.error import AssertError, RPCError
 from api.apimanager import API
 from neo.walletmanager import WalletManager
 from neo.wallet import Wallet, Account
-
+from api.clicontroller import CLIController
 
 ######################################################
 # test cases
 class test_cli(ParametrizedTestCase):
     def setUp(self):
-        logger.open("test_rpc/" + self._testMethodName + ".log", self._testMethodName)
+        self.clicon = CLIController(self._testMethodName)
+        logger.open("test_cli/" + self._testMethodName + ".log", self._testMethodName)
 
     def tearDown(self):
         logger.close(self.result())
 
-    def test_01_dumpprivkey(self):
-        pass
+    def test_01_createwallet(self):
+        try:
+            self.clicon.create_wallet("test.json", "111111")
+        except AssertError as e:
+            logger.error(e.msg)
+        except Exception as e:
+            logger.error(traceback.format_exc())
 
 
 if __name__ == '__main__':
