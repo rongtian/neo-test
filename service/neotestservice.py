@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 
 import leveldb
 import hashlib
@@ -20,7 +20,7 @@ from clicontroller import CLIController
 
 setproctitle.setproctitle("test_service")
 
-CLIController = CLIController()
+cliController = CLIController()
 
 
 def get_host_ip():
@@ -33,19 +33,28 @@ def get_host_ip():
 
     return ip
 
+@dispatcher.add_method
+def start_process(**kwargs):
+    path = kwargs["path"]
+    return cliController.start_process(path)
 
+@dispatcher.add_method
+def cli_version(**kwargs):
+    a = cliController.version()
+    return a
+    
 @Request.application
 def application(request):
     # Dispatcher is dictionary {<method_name>: callable}
-    dispatcher["start_process"] = CLIController.start_process
-    dispatcher["version"] = CLIController.version
+    dispatcher["start_process"] = start_process
+    dispatcher["cli_version"] = cli_version
 
     response = JSONRPCResponseManager.handle(request.data, dispatcher)
-    print(request)
-    responseobj = json.loads(response.json)
-    print(responseobj)
+    print("111: ", response.json)
+    responseobj = json.loads(response.json.replace("\\u0000", ""))
+    print("2222: ", responseobj)
     if "error" not in responseobj:
-            responseobj["error"] = 0
+        responseobj["error"] = 0
     else:
         if "message" in responseobj["error"]:
             responseobj["desc"] = responseobj["error"]["message"]
@@ -56,4 +65,4 @@ def application(request):
 
 
 if __name__ == '__main__':
-        run_simple(get_host_ip(), config.PORT, application)
+    run_simple(get_host_ip(), config.PORT, application)
