@@ -12,16 +12,16 @@ sys.path.append(testpath)
 from utils.logger import LoggerInstance as logger
 from utils.parametrizedtestcase import ParametrizedTestCase
 from utils.error import AssertError, RPCError
-from utils.config import Config
 from api.apimanager import API
 from neo.walletmanager import WalletManager
 from neo.wallet import Wallet, Account
+from api.clicontroller import CLIController
 
 ######################################################
 # test cases
 class test_cli(ParametrizedTestCase):
 	def setUp(self):
-		API.cli().init(self._testMethodName, Config.NODES[0]["path"])
+		self.clicon = CLIController(self._testMethodName)
 		logger.open("test_cli/" + self._testMethodName + ".log", self._testMethodName)
 
 	def tearDown(self):
@@ -265,11 +265,11 @@ class test_cli(ParametrizedTestCase):
 	'''
 	def test_21_startconsensus(self):
 		try:
-			API.cli().open_wallet("test.json", "11111111")
-			API.cli().start_consensus()
-			(result, stepname, msg) = API.cli().exec(False)
+			self.clicon.open_wallet("test.json", "11111111")
+			self.clicon.start_consensus()
+			(result, stepname, msg) = self.clicon.exec(False)
 			logger.print(msg)
-			API.cli().terminate()
+			self.clicon.terminate()
 		except AssertError as e:
 			logger.error(e.msg)
 		except Exception as e:

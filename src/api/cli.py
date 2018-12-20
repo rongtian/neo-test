@@ -56,7 +56,7 @@ class CLIReadThread(threading.Thread):
 
 class CLIApi:
     # version   显示当前软件的版本
-    def __init__(self, scriptname, neopath):
+    def __init__(self, scriptname="", neopath=""):
         # step index
         self.init(scriptname, neopath)
 
@@ -70,12 +70,16 @@ class CLIApi:
         self.scriptname = scriptname
         self.process = None
         self.readthread = None
-
+        self.neopath = neopath
+        self.scriptpath = ""
+        self.logfile = None
+        
+        if self.scriptname == "":
+            return
         self.scriptpath = self.prefixful + "/" + scriptname + ".sh"
         if not os.path.exists(self.prefixful):
             os.makedirs(self.prefixful)
 
-        self.neopath = neopath
         self.logfile = open(self.scriptpath, "w")  # 打开文件
         self.logfile.write("#!/usr/bin/expect\n")
         self.logfile.write("set timeout 10\n")
