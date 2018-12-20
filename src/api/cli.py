@@ -136,10 +136,11 @@ class CLIApi:
                 msg = self.readmsg()
         else:
             while True:
-                if self.readthread.isblock():
-                    time.sleep(1)
+                if self.readthread.isfinish() or self.readthread.isblock():
                     msg = self.readthread.lines()
                     break
+                else:
+                    time.sleep(1)
 
         if exitatlast:
             self.process.stdout.close()
@@ -179,7 +180,7 @@ class CLIApi:
                     exceptret = exceptfunc(msgblocks[key])
                     print("compare step result end")
                 else:
-                    exceptret = exceptfunc(None)
+                    exceptret = exceptfunc("")
                 if not exceptret:
                     return (False, key, msg)
 
