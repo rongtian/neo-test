@@ -3,7 +3,7 @@
 		{
 			"ip": "47.91.223.141",
 			"rpcport" : 50003,
-			"wallet" : "5.json",
+			"walletname" : "5.json",
 			"path" : "/root/neo/nodes/node5/neo-cli.dll"
 		}
 	]

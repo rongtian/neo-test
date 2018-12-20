@@ -2,6 +2,8 @@
 import json
 import os
 
+from neo.wallet import Wallet
+
 
 class Config():
     realdir = os.path.dirname(os.path.realpath(__file__))
@@ -16,9 +18,9 @@ class Config():
 
     ERR_CODE = {
         0: "SUCCESS",
-        54001: "xxxxxxxxxxxx",
-        54005: "1111111111",
-        54006: "222222222"
+        54001: "error 54001",
+        54005: "error 54005",
+        54006: "error 54006"
     }
 
     TOOLS_PATH = ROOT_PATH + "/" + "tools"
@@ -31,4 +33,6 @@ class Config():
     TEST_SERVICE_PORT = 23635
 
     NODES = cfg_json["NODES"]
+    for node in NODES:
+        node["wallet"] = Wallet(path=WALLET_PATH + "/" + node["walletname"])
     RPC_HEADERS = {'content-type': 'application/json'}

@@ -13,9 +13,8 @@ from utils.logger import LoggerInstance as logger
 from utils.parametrizedtestcase import ParametrizedTestCase
 from utils.error import AssertError, RPCError
 from api.apimanager import API
-from neo.walletmanager import WalletManager
 from neo.wallet import Wallet, Account
-
+from utils.config import Config
 
 ######################################################
 # test cases
@@ -28,7 +27,7 @@ class test_rpc_1(ParametrizedTestCase):
 
     def test_01_dumpprivkey(self):
         try:
-            result = API.rpc().dumpprivkey(WalletManager().wallet().account().address())
+            result = API.rpc().dumpprivkey(Config.NODES[0]["wallet"].account().address())
             self.ASSERT(result is "", "privkey not match")
         except AssertError as e:
             logger.error(e.msg)
@@ -37,7 +36,7 @@ class test_rpc_1(ParametrizedTestCase):
 
     def test_02_getaccountstate(self):
         try:
-            result = API.rpc().getaccountstate(WalletManager().wallet().account().address())
+            result = API.rpc().getaccountstate(Config.NODES[0]["wallet"].account().address())
             self.ASSERT(result, "")
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -323,8 +322,8 @@ class test_rpc_1(ParametrizedTestCase):
     def test_26_sendfrom(self):
         try:
             result = API.rpc().sendfrom("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
-                WalletManager().wallet(0).account().address(),
-                WalletManager().wallet(1).account().address(), 100)
+                Config.NODES[0]["wallet"].account().address(),
+                Config.NODES[1]["wallet"].account().address(), 100)
             self.ASSERT(result, "")
         except AssertError as e:
             logger.error(e.msg)
@@ -349,7 +348,7 @@ class test_rpc_1(ParametrizedTestCase):
     def test_28_sendtoaddress(self):
         try:
             result = API.rpc().sendtoaddress("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
-                WalletManager().wallet(1).account().address(), 100)
+                Config.NODES[0]["wallet"].account().address(), 100)
             self.ASSERT(result, "")
         except AssertError as e:
             logger.error(e.msg)
@@ -373,7 +372,7 @@ class test_rpc_1(ParametrizedTestCase):
 
     def test_30_validateaddress(self):
         try:
-            result = API.rpc().validateaddress(WalletManager().wallet(1).account().address())
+            result = API.rpc().validateaddress(Config.NODES[1]["wallet"].account().address())
             self.ASSERT(result, "")
         except AssertError as e:
             logger.error(e.msg)

@@ -3,11 +3,16 @@ import json
 
 # Wallet info
 class Wallet:
-    def __init__(self, path):
+    def __init__(self, path=""):
+        self.path = ""
+        if path != "":
+            self.path = path
         file = open(path, "rb")
         self.ijson = json.loads(file.read().decode("utf-8"))
         file.close()
-        pass
+
+    def path(self):
+        return self.path
 
     def name(self):
         return self.ijson["name"]
