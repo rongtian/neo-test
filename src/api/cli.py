@@ -1,97 +1,258 @@
 # -*- coding:utf-8 -*-
-import copy
-import json
-
-from utils.taskdata import Task
-from utils.taskrunner import TaskRunner
-from utils.error import RPCError
-
+import time
+import subprocess
+import threading
+import os
+import re
 
 # import utils.config
+
+readlock = threading.Lock()
+
+
+class CLIReadThread(threading.Thread):
+    def __init__(self, process):
+        super(CLIReadThread, self).__init__()
+        self.process = process
+        self.readlines = ""
+        self.statefinish = False
+
+    def lines(self):
+        return self.readlines
+
+    def isfinish(self):
+        return self.statefinish
+
+    # attemp to read block state three times, when three times attemped is all blocked, we think it is really bolcked
+    def isblock(self):
+        global readlock
+        if readlock.acquire(timeout=3):
+            readlock.release()
+            return False
+        else:
+            print("is blocked")
+            return True
+
+    def clear(self):
+        self.readlines = ""
+
+    def run(self):
+        trycount = 0
+        while True:
+            global readlock
+            readlock.acquire()
+            line = self.process.stdout.readline()
+            readlock.release()
+            if line != "":
+                self.readlines += re.sub('\x1b.*?m', '', line).replace("\x00", "")
+                pass
+            else:
+                if trycount > 3:
+                    self.statefinish = True
+                    break
+                else:
+                    time.sleep(1)
+                    trycount += 1
+
+
 class CLIApi:
     # version   显示当前软件的版本
-    REQUEST_BODY = {
-        "jsonrpc": "2.0",
-        "method": "",
-        "params": [],
-        "id": 1
-    }
-
-    def __init__(self):
-        self.currentnode = 0
-
-    def setnode(self, node):
-        self.currentnode = node
-
-    def simplerun(self, rpcmethod, params, jsonrpc='2.0', id=1):
-        request = copy.copy(CLIApi.REQUEST_BODY)
-        request["method"] = rpcmethod
-        request["params"] = params
-        request["jsonrpc"] = jsonrpc
-        request["id"] = id
-
-        ijson = {}
-        ijson["TYPE"] = "ST"
-        ijson["NODE_INDEX"] = int(self.currentnode)
-        ijson["REQUEST"] = request
-        ijson["RESPONSE"] = None
-        task = Task(name=rpcmethod, ijson=ijson)
-        (result, response) = TaskRunner.run_single_task(task, False)
-        if response is None:
-            raise Exception("cli rpc connect error")
-        if response["jsonrpc"] != jsonrpc:
-            raise Exception("cli rpc connect jsonrpc not valid: " + response["jsonrpc"])
-        if response["id"] != id:
-            raise Exception("cli rpc connect id not valid: " + str(response["id"]))
-        if "error" in response.keys():
-            raise RPCError(json.dumps(response["error"]))
-        return response["result"]
+    def __init__(self, scriptname="", neopath=""):
+        # step index
+        self.init(scriptname, neopath)
 
     def init(self, scriptname, neopath):
         # step index
-        return self.simplerun("cli_init", [scriptname, neopath])
+        self.stepindex = 0
+        # step except functions
+        self.stepexceptfuncs = {}
+        # scripts folder
+        self.prefixful = "cliscripts"
+        self.scriptname = scriptname
+        self.process = None
+        self.readthread = None
+        self.neopath = neopath
+        self.scriptpath = ""
+        self.logfile = None
+
+        if self.scriptname == "":
+            return
+        self.scriptpath = self.prefixful + "/" + scriptname + ".sh"
+        if not os.path.exists(self.prefixful):
+            os.makedirs(self.prefixful)
+
+        if self.logfile is not None:
+            self.logfile.close()
+        self.logfile = open(self.scriptpath, "w")  # 打开文件
+        self.logfile.write("#!/usr/bin/expect\n")
+        self.logfile.write("set timeout 10\n")
+        self.logfile.write("spawn dotnet " + self.neopath + "\n")
+        self.wait()
+        os.system("chmod 777 " + self.scriptpath)
 
     def readmsg(self):
-        return self.simplerun("cli_readmsg", [])
+        self.readthread.lines()
 
     def clearmsg(self):
-        return self.simplerun("cli_clearmsg", [])
+        self.readthread.clear()
+
+    def begincmd(self, cmd):
+        self.writeline("send_user \\nSTART_CLI_COMMAND-" + cmd + "-" + str(self.stepindex) + "\\n")
+
+    def endcmd(self, cmd):
+        self.writeline("send_user \\nFINISH_CLI_COMMAND-" + cmd + "-" + str(self.stepindex) + "\\n")
+        self.stepindex += 1
+
+    def writeline(self, str):
+        self.logfile.write(str + "\n")
+
+    def writesend(self, str):
+        self.logfile.write("send \"" + str + "\\r\"" + "\n")
+        pass
+
+    def writeexcept(self, str):
+        self.logfile.write("expect \"" + str + "\"" + "\n")
+        pass
 
     def terminate(self):
-        return self.simplerun("cli_terminate", [])
+        try:
+            os.system("kill -9 " + str(self.process_pid))
+        except Exception as e:
+            print(e)
 
     def exec(self, exitatlast=True):
-        return self.simplerun("cli_exec", [exitatlast])
+        if exitatlast:
+            self.exit()
+        else:
+            self.writeline("interact")
+
+        msg = ""
+        self.logfile.close()
+        self.logfile = None
+        self.process = subprocess.Popen("./" + self.scriptpath, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        self.process_pid = self.process.pid
+        print("PID:", self.process_pid)
+        self.readthread = CLIReadThread(self.process)
+        self.readthread.start()
+        if exitatlast:
+            while self.readthread.isfinish():
+                msg = self.readmsg()
+        else:
+            while True:
+                if self.readthread.isfinish() or self.readthread.isblock():
+                    msg = self.readthread.lines()
+                    break
+                else:
+                    time.sleep(1)
+
+        if exitatlast:
+            self.process.stdout.close()
+            self.process.stdin.close()
+            self.process.wait()
+
+        msgblocks = {}
+        lines = msg.split('\n')
+        newblockindex = -1
+        newblockname = ""
+        for line in lines:
+            if line.find("START_CLI_COMMAND") != -1:
+                newblockindex = line.split('-')[2]
+                newblockname = line.split('-')[1]
+                continue
+            elif line.find("FINISH_CLI_COMMAND") != -1:
+                newblockindex = -1
+            else:
+                if newblockindex != -1:
+                    if newblockname + "-" + newblockindex in msgblocks.keys():
+                        msgblock = msgblocks[newblockname + "-" + newblockindex]
+                        msgblock += line + "\n"
+                        msgblocks[newblockname + "-" + newblockindex] = msgblock
+                    else:
+                        msgblocks[newblockname + "-" + newblockindex] = ""
+
+        print(self.stepexceptfuncs)
+        for key in self.stepexceptfuncs.keys():
+            exceptfunc = self.stepexceptfuncs[key]
+            if exceptfunc is None:
+                pass
+            else:
+                exceptret = False
+                if key in msgblocks.keys():
+                    print("compare step result: ", key, "   ", type(msgblocks[key]))
+                    print("exceptfunc", msgblocks)
+                    exceptret = exceptfunc(msgblocks[key])
+                    print("compare step result end")
+                else:
+                    exceptret = exceptfunc("")
+                if not exceptret:
+                    return (False, key, msg)
+
+        return (True, "", msg)
 
     def version(self, exceptfunc=None):
-        return self.simplerun("cli_version", [exceptfunc])
+        self.writesend("version")
+        self.stepexceptfuncs["[version]-" + str(self.stepindex)] = exceptfunc
+        self.stepindex += 1
 
     # help  帮助菜单
     def help(self, exceptfunc=None):
-        return self.simplerun("cli_help", [exceptfunc])
+        self.writesend("help")
+        self.stepexceptfuncs["[help]-" + str(self.stepindex)] = exceptfunc
+        self.stepindex += 1
 
     def wait(self, times=1):
-        return self.simplerun("cli_wait", [times])
+        for index in range(times):
+            self.writeexcept("*neo>")
 
     # clear 清除屏幕
     def clear(self):
-        return self.simplerun("cli_clear", [])
+        self.writesend("clear")
 
     # exit  退出程序
     def exit(self):
-        return self.simplerun("cli_exit", [])
+        self.writesend("exit")
 
     # create wallet <path>  创建钱包文件
     def create_wallet(self, filepath, password, exceptfunc=None):
-        return self.simplerun("cli_create_wallet", [filepath, password, exceptfunc])
+        name = "create_wallet"
+        if os.path.exists(filepath):
+            os.system("rm " + filepath)
+
+        self.begincmd(name)
+        self.writesend("create wallet " + filepath)
+        # input password
+        self.writeexcept("*password:")
+        self.writesend(password)
+        # confirm password
+        self.writeexcept("*password:")
+        self.writesend(password)
+        # register except function
+        self.wait(1)
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # open wallet <path>    打开钱包文件
     def open_wallet(self, filepath, password, exceptfunc=None):
-        return self.simplerun("cli_open_wallet", [filepath, password, exceptfunc])
+        name = "open_wallet"
+        self.begincmd(name)
+        self.writesend("open wallet " + filepath)
+        # input password
+        self.writeexcept("*password:")
+        self.writesend(password)
+        self.wait(1)
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # upgrade wallet <path> 升级旧版钱包文件
     def upgrade_wallet(self, filepath, exceptfunc=None):
-        return self.simplerun("cli_upgrade_wallet", [filepath, exceptfunc])
+        name = "upgrade_wallet"
+        self.begincmd(name)
+        self.writesend("upgrade wallet " + filepath)
+        # register except function
+        self.wait(1)
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # rebuild index 重建钱包索引  需要打开钱包
     # 重建钱包索引。为什么要重建钱包索引，重建钱包索引有什么用？
@@ -103,19 +264,43 @@ class CLIApi:
     # 但并未经过整个区块链网络的确认。如果想删掉这笔未确认的交易使钱包中的资产正常显示也需要重建钱包索引。
     # 新创建的钱包不用重建钱包索引，只有要导入私钥或者钱包中资产显示异常时才需要重建钱包索引。
     def rebuild_index(self, exceptfunc=None):
-        return self.simplerun("cli_rebuild_index", [exceptfunc])
+        name = "rebuild_index"
+        self.begincmd(name)
+        self.writesend("rebuild index")
+        # register except function
+        self.wait(1)
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # list address  列出钱包中的所有账户  需要打开钱包
     def list_address(self, exceptfunc=None):
-        return self.simplerun("cli_list_address", [exceptfunc])
+        name = "list_address"
+        self.begincmd(name)
+        self.writesend("list address")
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # list asset    列出钱包中的所有资产  需要打开钱包
     def list_asset(self, exceptfunc=None):
-        return self.simplerun("cli_list_asset", [exceptfunc])
+        name = "list_asset"
+        self.begincmd(name)
+        self.writesend("list asset")
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # list key  列出钱包中的所有公钥  需要打开钱包
     def list_key(self, exceptfunc=None):
-        return self.simplerun("cli_list_key", [exceptfunc])
+        name = "list_key"
+        self.begincmd(name)
+        self.writesend("list key")
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # show utxo [id|alias]  列出钱包中指定资产的 UTXO 需要打开钱包
     # examples:
@@ -129,29 +314,65 @@ class CLIApi:
     #   8674c38082e59455cf35cee94a5a1f39f73b617b3093859aa199c756f7900f1f:0
     #   total: 1 UTXOs
     def show_utxo(self, id_alias=None, exceptfunc=None):
-        return self.simplerun("cli_show_utxo", [id_alias, exceptfunc])
+        name = "show_utxo"
+        self.begincmd(name)
+        if id_alias is None:
+            self.writesend("show utxo")
+        else:
+            self.writesend("show utxo " + id_alias)
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # show gas  列出钱包中的所有可提取及不可提取的 GAS   需要打开钱包
     # examples:
     # unavailable: 133.024
     # available: 10.123
     def show_gas(self, exceptfunc=None):
-        return self.simplerun("cli_show_gas", [exceptfunc])
+        name = "show_gas"
+        self.begincmd(name)
+        self.writesend("show gas")
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # claim gas 提取钱包中的所有可提取的 GAS    需要打开钱包
     def claim_gas(self, exceptfunc=None):
-        return self.simplerun("cli_claim_gas", [exceptfunc])
+        name = "claim_gas"
+        self.begincmd(name)
+        self.writesend("claim gas")
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # create address [n=1]  创建地址 / 批量创建地址   需要打开钱包
     def create_address(self, n=None, exceptfunc=None):
-        return self.simplerun("cli_create_address", [n, exceptfunc])
+        name = "create_address"
+        self.begincmd(name)
+        if n is None:
+            self.writesend("create address")
+        else:
+            self.writesend("create address " + str(n))
+        self.wait(1)
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # import key <wif|path> 导入私钥 / 批量导入私钥   需要打开钱包
     # examples:
     # import key L4zRFphDJpLzXZzYrYKvUoz1LkhZprS5pTYywFqTJT2EcmWPPpPH
     # import key key.txt
     def import_key(self, wif_path, exceptfunc=None):
-        return self.simplerun("cli_import_key", [wif_path, exceptfunc])
+        name = "import_key"
+        self.begincmd(name)
+        self.writesend("import key " + str(wif_path))
+        # register except function
+        self.wait()
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # export key [address] [path]   导出私钥    需要打开钱包
     # examples:
@@ -160,49 +381,133 @@ class CLIApi:
     # export key key.txt
     # export key AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b key.txt
     def export_key(self, password, address=None, path=None, exceptfunc=None):
-        return self.simplerun("cli_export_key", [password, address, path, exceptfunc])
+        name = "export_key"
+        self.begincmd(name)
+        addressstr = ""
+        pathstr = ""
+        if address is not None:
+            addressstr = address
+        if path is not None:
+            pathstr = path
+        self.writesend("export key " + str(addressstr) + " " + str(pathstr))
+        self.writeexcept("*password:")
+        self.writesend(password)
+        self.wait(1)
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # send <id|alias> <address> <value>|all [fee=0] 向指定地址转账 参数分别为：资产 ID，对方地址，转账金额，手续费   需要打开钱包
     # examples:
     # 1. send c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b 100
     # 2. send neo AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b 100
     def send(self, password, id_alias, address, value, fee=0, exceptfunc=None):
-        return self.simplerun("cli_export_key", [password, id_alias, address, value, fee, exceptfunc])
+        name = "send"
+        self.begincmd(name)
+        self.writesend("send " + str(id_alias) + " " + str(address) + " " + str(value) + " " + str(fee))
+        self.writeexcept("*password:")
+        self.writesend(password)
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # import multisigaddress m pubkeys...   创建多方签名合约    需要打开钱包
     # examples:
     # import multisigaddress 1 037ebe29fff57d8c177870e9d9eecb046b27fc290ccbac88a0e3da8bac5daa630d 03b34a4be80db4a38f62bb41d63f9b1cb664e5e0416c1ac39db605a8e30ef270cc
     def import_multisigaddress(self, m, pubkeys, exceptfunc=None):
-        return self.simplerun("cli_import_multisigaddress", [m, pubkeys, exceptfunc])
+        name = "import_multisigaddress"
+        self.begincmd(name)
+        self.writesend("import multisigaddress " + str(m) + " " + " ".join(pubkeys))
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # sign <jsonObjectToSign>   签名 参数为：记录交易内容的 json 字符串 需要打开钱包
     def sign(self, jsonobj, exceptfunc=None):
-        return self.simplerun("cli_sign", [jsonobj, exceptfunc])
+        name = "sign"
+        self.begincmd(name)
+        self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # relay <jsonObjectToSign>  广播 参数为：记录交易内容的 json 字符串 需要打开钱包
     def relay(self, jsonobj, exceptfunc=None):
-        return self.simplerun("cli_relay", [jsonobj, exceptfunc])
+        name = "relay"
+        self.begincmd(name)
+        self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # show state    显示当前区块链同步状态
     def show_state(self, times=1, exceptfunc=None):
-        return self.simplerun("cli_show_state", [times, exceptfunc])
+        name = "show_state"
+        self.begincmd(name)
+        self.writesend("show state")
+        for index in range(times):
+            self.writeexcept("block:*")
+        self.writeexcept("exit")
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # show node 显示当前已连接的节点地址和端口
     def show_node(self, exceptfunc=None):
-        return self.simplerun("cli_show_node", [exceptfunc])
+        name = "show_node"
+        self.begincmd(name)
+        self.writesend("show node")
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # show pool 显示内存池中的交易（这些交易处于零确认的状态）
     def show_pool(self, exceptfunc=None):
-        return self.simplerun("cli_show_pool", [exceptfunc])
+        name = "show_pool"
+        self.begincmd(name)
+        self.writesend("show pool")
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # export blocks [path=chain.acc]    导出全部区块数据，导出的结果可以用作离线同步
     def export_all_blocks(self, path=None, exceptfunc=None):
-        return self.simplerun("cli_export_all_blocks", [path, exceptfunc])
+        name = "export_all_blocks"
+        self.begincmd(name)
+        if path is None:
+            self.writesend("export blocks")
+        else:
+            self.writesend("export blocks " + path)
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # export blocks <start> [count] 从指定区块高度导出指定数量的区块数据，导出的结果可以用作离线同步
     def export_blocks(self, start, count=None, exceptfunc=None):
-        return self.simplerun("cli_export_blocks", [start, count, exceptfunc])
+        name = "export_blocks"
+        self.begincmd(name)
+        if count is None:
+            self.writesend("export blocks " + str(start))
+        else:
+            self.writesend("export blocks " + str(start) + " " + str(count))
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
 
     # start consensus   启动共识
     def start_consensus(self, exceptfunc=None):
-        return self.simplerun("cli_start_consensus", [exceptfunc])
+        name = "start_consensus"
+        self.begincmd(name)
+        self.writesend("start consensus")
+        self.wait()
+        # register except function
+        self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
+        self.endcmd(name)
