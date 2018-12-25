@@ -120,6 +120,10 @@ class CLIApi:
         except Exception as e:
             print(e)
 
+    def waitnext(self, times=1):
+        for index in range(times):
+            self.writeexcept("*neo>")
+
     def exec(self, exitatlast=True):
         if exitatlast:
             self.exit()
@@ -200,10 +204,6 @@ class CLIApi:
         self.stepexceptfuncs["[help]-" + str(self.stepindex)] = exceptfunc
         self.stepindex += 1
 
-    def wait(self, times=1):
-        for index in range(times):
-            self.writeexcept("*neo>")
-
     # clear 清除屏幕
     def clear(self):
         self.writesend("clear")
@@ -227,7 +227,7 @@ class CLIApi:
         self.writeexcept("*password:")
         self.writesend(password)
         # register except function
-        self.wait(1)
+        self.waitnext(1)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -239,7 +239,7 @@ class CLIApi:
         # input password
         self.writeexcept("*password:")
         self.writesend(password)
-        self.wait(1)
+        self.waitnext(1)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -250,7 +250,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("upgrade wallet " + filepath)
         # register except function
-        self.wait(1)
+        self.waitnext(1)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -268,7 +268,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("rebuild index")
         # register except function
-        self.wait(1)
+        self.waitnext(1)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -356,7 +356,7 @@ class CLIApi:
             self.writesend("create address")
         else:
             self.writesend("create address " + str(n))
-        self.wait(1)
+        self.waitnext(1)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -392,7 +392,7 @@ class CLIApi:
         self.writesend("export key " + str(addressstr) + " " + str(pathstr))
         self.writeexcept("*password:")
         self.writesend(password)
-        self.wait(1)
+        self.waitnext(1)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
