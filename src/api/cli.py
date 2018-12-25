@@ -141,11 +141,14 @@ class CLIApi:
         print("PID:", self.process_pid)
         self.readthread = CLIReadThread(self.process)
         self.readthread.start()
-        if exitatlast:
-            while self.readthread.isfinish():
-                msg = self.readmsg()
-        else:
-            while True:
+        while True:
+            if exitatlast:
+                if self.readthread.isfinish():
+                    msg = self.readthread.lines()
+                    break
+                else:
+                    time.sleep(1)
+            else:
                 if self.readthread.isfinish() or self.readthread.isblock():
                     msg = self.readthread.lines()
                     break
