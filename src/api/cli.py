@@ -47,8 +47,11 @@ class CLIReadThread(threading.Thread):
                 self.readlines += re.sub('\x1b.*?m', '', line).replace("\x00", "")
                 pass
             else:
-                if trycount > 3:
+                if trycount > 2:
                     self.statefinish = True
+                    self.process.wait()
+                    self.process.stdout.close()
+                    self.process.stdin.close()
                     break
                 else:
                     time.sleep(1)
@@ -148,11 +151,6 @@ class CLIApi:
                     break
                 else:
                     time.sleep(1)
-
-        if exitatlast:
-            self.process.stdout.close()
-            self.process.stdin.close()
-            self.process.wait()
 
         msgblocks = {}
         lines = msg.split('\n')

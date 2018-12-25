@@ -43,7 +43,7 @@ class CLIRPCApi:
             raise Exception("cli rpc connect jsonrpc not valid: " + response["jsonrpc"])
         if response["id"] != id:
             raise Exception("cli rpc connect id not valid: " + str(response["id"]))
-        if "error" in response.keys() and response["error"] > 0:
+        if "error" in response.keys() and response["error"] != 0:
             raise RPCError(json.dumps(response["error"]))
         return response["result"]
 
