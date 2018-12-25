@@ -48,8 +48,6 @@ def con(itype, ip, request):
 
         if connecttype.upper() == "RPC":
             return con_rpc(ip, request)
-        elif connecttype.upper() == "CLI":
-            return con_cli(ip, request)
         elif connecttype.upper() == "RESTFUL":
             return con_restful(ip, request)
         elif connecttype.upper() == "WS":
@@ -58,7 +56,7 @@ def con(itype, ip, request):
             return con_test_service(ip, request)
     return None
 
-
+'''
 def con_cli(ip, request):
     try:
         url = ""
@@ -67,12 +65,12 @@ def con_cli(ip, request):
         else:
             url = Config.CLIRPC_URL
 
-        response = requests.post(url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=10)
+        response = requests.post(url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=15)
         return response.json()
     except Exception as e:
         logger.error("con_cli:" + str(e.args[0]))
         raise RuntimeError(54004)
-
+'''
 
 def con_rpc(ip, request):
     try:
@@ -144,7 +142,7 @@ def con_test_service(ip, request):
         else:
             con_url = "http://127.0.0.1:23635/jsonrpc"
 
-        response = requests.post(con_url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=10)
+        response = requests.post(con_url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=15)
         return response.json()
     except Exception as e:
         logger.error("con_test_service:" + str(e.args[0]))

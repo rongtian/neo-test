@@ -25,7 +25,8 @@ class test_cli(ParametrizedTestCase):
 
     def tearDown(self):
         logger.close(self.result())
-
+    
+    '''
     def test_01_createwallet(self):
         try:
             API.clirpc().create_wallet("test.json", "11111111")
@@ -48,7 +49,7 @@ class test_cli(ParametrizedTestCase):
             logger.error(e.msg)
         except Exception as e:
             logger.error(traceback.format_exc())
-    
+    '''
     def test_03_upgradewallet(self):
         try:
             self.clicon.open_wallet("test.json", "11111111")

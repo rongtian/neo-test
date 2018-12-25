@@ -88,7 +88,8 @@ class CLIApi:
             self.logfile.close()
         self.logfile = open(self.scriptpath, "w")  # 打开文件
         self.logfile.write("#!/usr/bin/expect\n")
-        self.logfile.write("set timeout 10\n")
+        self.logfile.write("cd " + neopath.replace("neo-cli.dll", "") + "\n")
+        self.logfile.write("set timeout 5\n")
         self.logfile.write("spawn dotnet " + self.neopath + "\n")
         self.waitnext()
         os.system("chmod 777 " + self.scriptpath)
