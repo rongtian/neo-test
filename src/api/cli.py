@@ -87,7 +87,7 @@ class CLIApi:
         self.logfile.write("#!/usr/bin/expect\n")
         self.logfile.write("set timeout 10\n")
         self.logfile.write("spawn dotnet " + self.neopath + "\n")
-        self.wait()
+        self.waitnext()
         os.system("chmod 777 " + self.scriptpath)
 
     def readmsg(self):
@@ -278,7 +278,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("list address")
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -288,7 +288,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("list asset")
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -298,7 +298,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("list key")
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -320,7 +320,7 @@ class CLIApi:
             self.writesend("show utxo")
         else:
             self.writesend("show utxo " + id_alias)
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -334,7 +334,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("show gas")
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -344,7 +344,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("claim gas")
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -370,7 +370,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("import key " + str(wif_path))
         # register except function
-        self.wait()
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -407,7 +407,7 @@ class CLIApi:
         self.writesend("send " + str(id_alias) + " " + str(address) + " " + str(value) + " " + str(fee))
         self.writeexcept("*password:")
         self.writesend(password)
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -419,7 +419,7 @@ class CLIApi:
         name = "import_multisigaddress"
         self.begincmd(name)
         self.writesend("import multisigaddress " + str(m) + " " + " ".join(pubkeys))
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -429,7 +429,7 @@ class CLIApi:
         name = "sign"
         self.begincmd(name)
         self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -439,7 +439,7 @@ class CLIApi:
         name = "relay"
         self.begincmd(name)
         self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -461,7 +461,7 @@ class CLIApi:
         name = "show_node"
         self.begincmd(name)
         self.writesend("show node")
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -471,7 +471,7 @@ class CLIApi:
         name = "show_pool"
         self.begincmd(name)
         self.writesend("show pool")
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -484,7 +484,7 @@ class CLIApi:
             self.writesend("export blocks")
         else:
             self.writesend("export blocks " + path)
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -497,7 +497,7 @@ class CLIApi:
             self.writesend("export blocks " + str(start))
         else:
             self.writesend("export blocks " + str(start) + " " + str(count))
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -507,7 +507,7 @@ class CLIApi:
         name = "start_consensus"
         self.begincmd(name)
         self.writesend("start consensus")
-        self.wait()
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)

@@ -10,7 +10,7 @@ from werkzeug.serving import run_simple
 from jsonrpc import JSONRPCResponseManager, dispatcher
 from config import Configure as config
 
-sys.path.append('../src/cli')
+sys.path.append('../src/api')
 from cli import CLIApi
 
 setproctitle.setproctitle("test_service")
