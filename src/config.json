@@ -1,8 +1,9 @@
 {
 	"NODES": [
 		{
-			"ip": "47.91.223.141",
+			"ip": "47.52.252.55",
 			"rpcport" : 50003,
+			"stport" : 23636,
 			"walletname" : "5.json",
 			"path" : "/root/neo/nodes/node5/neo-cli.dll"
 		}

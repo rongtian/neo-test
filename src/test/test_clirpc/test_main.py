@@ -14,7 +14,6 @@ from utils.parametrizedtestcase import ParametrizedTestCase
 from utils.error import AssertError, RPCError
 from utils.config import Config
 from api.apimanager import API
-from neo.walletmanager import WalletManager
 from neo.wallet import Wallet, Account
 
 ######################################################

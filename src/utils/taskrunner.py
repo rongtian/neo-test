@@ -38,6 +38,8 @@ class TaskRunner:
 
         if connecttype.lower() == "rpc":
             node_ip = Config.NODES[int(node_index)]["ip"] + ":" + str(Config.NODES[int(node_index)]["rpcport"])
+        if connecttype.lower() == "st":
+            node_ip = Config.NODES[int(node_index)]["ip"] + ":" + str(Config.NODES[int(node_index)]["stport"])
         logger.print("run on service(" + str(node_index) + "):  " + node_ip)
 
         response = utils.connect.con(connecttype, node_ip, cfg_request)
