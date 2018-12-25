@@ -36,3 +36,4 @@ class Config():
     for node in NODES:
         node["wallet"] = Wallet(path=WALLET_PATH + "/" + node["walletname"])
     RPC_HEADERS = {'content-type': 'application/json'}
+    GEN_BLOCK_TIMEOUT = 30

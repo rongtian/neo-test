@@ -128,6 +128,27 @@ class CLIApi:
         for index in range(times):
             self.writeexcept("*neo>")
 
+    def waitsync(self, timeoout=30):
+        self.process.stdin.write("show state\n")
+        timeoutflag = 0
+        while True:
+            msg = self.readmsg()
+            lastline = msg.split("\n")[-1]
+            group = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group()
+            if group is not None:
+                print(lastline)
+                block1 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(1)
+                block2 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(2)
+                block3 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(3)
+                if block1 > 0 and block1 == block2 and block1 == block3:
+                    self.process.stdin.write("\n")
+                    return True
+            if timeoutflag > timeoout:
+                self.process.stdin.write("\n")
+                return False
+            time.sleep(1)
+            timeoutflag += 1
+
     def exec(self, exitatlast=True):
         if exitatlast:
             self.exit()

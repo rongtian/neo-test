@@ -15,7 +15,7 @@ from monitor.monitor import TestMonitor
 from utils.logger import LoggerInstance as logger
 
 setproctitle.setproctitle("run_alltest")
-os.system("chmod 777 ../../tools/*")
+#os.system("chmod 777 ../../tools/*")
 
 
 class TestCaseRunner():
