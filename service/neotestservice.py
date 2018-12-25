@@ -3,12 +3,14 @@
 import socket
 import json
 import setproctitle
-
+import sys
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 
 from jsonrpc import JSONRPCResponseManager, dispatcher
 from config import Configure as config
+
+sys.path.append('../src/cli')
 from cli import CLIApi
 
 setproctitle.setproctitle("test_service")
@@ -55,7 +57,7 @@ def cli_terminate(**kwargs):
 
 @dispatcher.add_method
 def cli_exec(**kwargs):
-    return cli.exec()
+    return cli.exec(kwargs["exitatlast"])
 
 
 @dispatcher.add_method
