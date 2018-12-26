@@ -7,5 +7,12 @@
 			"walletname" : "5.json",
 			"path" : "/root/neo/nodes/node5/neo-cli.dll"
 		}
+	],
+	"WALLETS": [
+		"1.json",
+		"2.json",
+		"3.json",
+		"4.json",
+		"5.json"
 	]
 }
