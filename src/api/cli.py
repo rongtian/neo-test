@@ -236,42 +236,60 @@ class CLIApi:
         self.writesend("exit")
 
     # create wallet <path>  创建钱包文件
-    def create_wallet(self, filepath, password, exceptfunc=None):
+    def create_wallet(self, filepath=None, password=None, exceptfunc=None):
         name = "create_wallet"
         if os.path.exists(filepath):
             os.system("rm " + filepath)
 
         self.begincmd(name)
-        self.writesend("create wallet " + filepath)
+        if filepath is not None:
+            self.writesend("create wallet " + filepath)
+        else:
+            self.writesend("create wallet")
         # input password
         self.writeexcept("*password:")
-        self.writesend(password)
+        if password is None:
+            self.writesend(password)
+        else:
+            self.writesend("")
         # confirm password
         self.writeexcept("*password:")
-        self.writesend(password)
+        if password is None:
+            self.writesend(password)
+        else:
+            self.writesend("")
         # register except function
         self.waitnext(1)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
     # open wallet <path>    打开钱包文件
-    def open_wallet(self, filepath, password, exceptfunc=None):
+    def open_wallet(self, filepath=None, password=None, exceptfunc=None):
         name = "open_wallet"
         self.begincmd(name)
-        self.writesend("open wallet " + filepath)
+        if filepath is not None:
+            self.writesend("open wallet " + filepath)
+        else:
+            self.writesend("open wallet")
         # input password
         self.writeexcept("*password:")
-        self.writesend(password)
+        if password is not None:
+            self.writesend(password)
+        else:
+            self.writesend("")
         self.waitnext(1)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
     # upgrade wallet <path> 升级旧版钱包文件
-    def upgrade_wallet(self, filepath, exceptfunc=None):
+    def upgrade_wallet(self, filepath=None, exceptfunc=None):
         name = "upgrade_wallet"
         self.begincmd(name)
-        self.writesend("upgrade wallet " + filepath)
+        if filepath is not None:
+            self.writesend("upgrade wallet " + filepath)
+        else:
+            self.writesend("upgrade wallet")
         # register except function
         self.waitnext(1)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
@@ -388,10 +406,13 @@ class CLIApi:
     # examples:
     # import key L4zRFphDJpLzXZzYrYKvUoz1LkhZprS5pTYywFqTJT2EcmWPPpPH
     # import key key.txt
-    def import_key(self, wif_path, exceptfunc=None):
+    def import_key(self, wif_path=None, exceptfunc=None):
         name = "import_key"
         self.begincmd(name)
-        self.writesend("import key " + str(wif_path))
+        if wif_path is not None:
+            self.writesend("import key " + str(wif_path))
+        else:
+            self.writesend("import key")
         # register except function
         self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
@@ -403,7 +424,7 @@ class CLIApi:
     # export key AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b
     # export key key.txt
     # export key AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b key.txt
-    def export_key(self, password, address=None, path=None, exceptfunc=None):
+    def export_key(self, password=None, address=None, path=None, exceptfunc=None):
         name = "export_key"
         self.begincmd(name)
         addressstr = ""
@@ -414,7 +435,10 @@ class CLIApi:
             pathstr = path
         self.writesend("export key " + str(addressstr) + " " + str(pathstr))
         self.writeexcept("*password:")
-        self.writesend(password)
+        if password is not None:
+            self.writesend(password)
+        else:
+            self.writesend("")
         self.waitnext(1)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
@@ -424,12 +448,25 @@ class CLIApi:
     # examples:
     # 1. send c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b 100
     # 2. send neo AeSHyuirtXbfZbFik6SiBW2BEj7GK3N62b 100
-    def send(self, password, id_alias, address, value, fee=0, exceptfunc=None):
+    def send(self, password=None, id_alias=None, address=None, value=None, fee=0, exceptfunc=None):
         name = "send"
         self.begincmd(name)
-        self.writesend("send " + str(id_alias) + " " + str(address) + " " + str(value) + " " + str(fee))
+        params = []
+        if id_alias is not None:
+            params.append(str(id_alias))
+        if address is not None:
+            params.append(str(address))
+        if value is not None:
+            params.append(str(value))
+        if fee is not None:
+            params.append(str(fee))
+
+        self.writesend("send " + " ".join(params))
         self.writeexcept("*password:")
-        self.writesend(password)
+        if password is not None:
+            self.writesend(password)
+        else:
+            self.writesend("")
         self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
@@ -438,30 +475,43 @@ class CLIApi:
     # import multisigaddress m pubkeys...   创建多方签名合约    需要打开钱包
     # examples:
     # import multisigaddress 1 037ebe29fff57d8c177870e9d9eecb046b27fc290ccbac88a0e3da8bac5daa630d 03b34a4be80db4a38f62bb41d63f9b1cb664e5e0416c1ac39db605a8e30ef270cc
-    def import_multisigaddress(self, m, pubkeys, exceptfunc=None):
+    def import_multisigaddress(self, m=None, pubkeys=None, exceptfunc=None):
         name = "import_multisigaddress"
         self.begincmd(name)
-        self.writesend("import multisigaddress " + str(m) + " " + " ".join(pubkeys))
+        params = []
+        if m is not None:
+            params.append(str(m))
+        if pubkeys is not None:
+            params.append(" ".join(pubkeys))
+
+        self.writesend("import multisigaddress " + " ".join(params))
         self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
     # sign <jsonObjectToSign>   签名 参数为：记录交易内容的 json 字符串 需要打开钱包
-    def sign(self, jsonobj, exceptfunc=None):
+    def sign(self, jsonobj=None, exceptfunc=None):
         name = "sign"
         self.begincmd(name)
-        self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        if jsonobj is not None:
+            self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        else:
+            self.writesend("sign")
+
         self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
     # relay <jsonObjectToSign>  广播 参数为：记录交易内容的 json 字符串 需要打开钱包
-    def relay(self, jsonobj, exceptfunc=None):
+    def relay(self, jsonobj=None, exceptfunc=None):
         name = "relay"
         self.begincmd(name)
-        self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        if jsonobj is not None:
+            self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+        else:
+            self.writesend("relay")
         self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
@@ -513,13 +563,15 @@ class CLIApi:
         self.endcmd(name)
 
     # export blocks <start> [count] 从指定区块高度导出指定数量的区块数据，导出的结果可以用作离线同步
-    def export_blocks(self, start, count=None, exceptfunc=None):
+    def export_blocks(self, start=None, count=None, exceptfunc=None):
         name = "export_blocks"
         self.begincmd(name)
-        if count is None:
-            self.writesend("export blocks " + str(start))
-        else:
-            self.writesend("export blocks " + str(start) + " " + str(count))
+        params = []
+        if start is not None:
+            params.append(str(start))
+        if count is not None:
+            params.append(str(count))
+        self.writesend("export blocks " + " ".join(params))
         self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
