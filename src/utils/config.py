@@ -18,9 +18,8 @@ class Config():
 
     ERR_CODE = {
         0: "SUCCESS",
-        54001: "error 54001",
-        54005: "error 54005",
-        54006: "error 54006"
+        54001: "RPC CONNECT ERROR",
+        54005: "TEST SERVICE RPC CONNECT ERROR"
     }
 
     TOOLS_PATH = ROOT_PATH + "/" + "tools"

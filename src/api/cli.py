@@ -236,10 +236,11 @@ class CLIApi:
         self.writesend("exit")
 
     # create wallet <path>  创建钱包文件
-    def create_wallet(self, filepath=None, password=None, exceptfunc=None):
+    def create_wallet(self, filepath=None, password=None, clearfirst=True, exceptfunc=None):
         name = "create_wallet"
-        if os.path.exists(filepath):
-            os.system("rm " + filepath)
+        if filepath is not None:
+            if clearfirst and os.path.exists(filepath):
+                os.system("rm " + filepath)
 
         self.begincmd(name)
         if filepath is not None:
@@ -248,13 +249,13 @@ class CLIApi:
             self.writesend("create wallet")
         # input password
         self.writeexcept("*password:")
-        if password is None:
+        if password is not None:
             self.writesend(password)
         else:
             self.writesend("")
         # confirm password
         self.writeexcept("*password:")
-        if password is None:
+        if password is not None:
             self.writesend(password)
         else:
             self.writesend("")
