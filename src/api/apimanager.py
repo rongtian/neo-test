@@ -22,7 +22,8 @@ class APIManager():
         self.clirpcapi = CLIRPCApi()
         self.cliapi = CLIApi()
 
-    def node(self):
+    def node(self, node=0):
+        self.nodeapi.setnode(node)
         return self.nodeapi
 
     def rpc(self, node=0):

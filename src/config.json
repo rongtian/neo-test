@@ -2,10 +2,31 @@
 	"NODES": [
 		{
 			"ip": "47.52.252.55",
-			"rpcport" : 50003,
+			"rpcport" : 10003,
+			"stport" : 23606,
+			"walletname" : "1.json",
+			"path" : "/root/neo/nodes/node1/neo-cli.dll"
+		},
+		{
+			"ip": "47.52.252.55",
+			"rpcport" : 20003,
+			"stport" : 23616,
+			"walletname" : "2.json",
+			"path" : "/root/neo/nodes/node2/neo-cli.dll"
+		},
+		{
+			"ip": "47.52.252.55",
+			"rpcport" : 30003,
+			"stport" : 23626,
+			"walletname" : "3.json",
+			"path" : "/root/neo/nodes/node3/neo-cli.dll"
+		},
+		{
+			"ip": "47.52.252.55",
+			"rpcport" : 40003,
 			"stport" : 23636,
-			"walletname" : "5.json",
-			"path" : "/root/neo/nodes/node5/neo-cli.dll"
+			"walletname" : "4.json",
+			"path" : "/root/neo/nodes/node4/neo-cli.dll"
 		}
 	],
 	"WALLETS": [

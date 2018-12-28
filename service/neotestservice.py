@@ -4,6 +4,9 @@ import socket
 import json
 import setproctitle
 import sys
+import os
+import getopt
+
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 
@@ -13,7 +16,6 @@ from config import Configure as config
 sys.path.append('../src/api')
 from cli import CLIApi
 
-setproctitle.setproctitle("test_service")
 
 cli = CLIApi()
 
@@ -33,6 +35,11 @@ def eval_exceptfunc(funcstr):
         return None
     else:
         return eval(funcstr)
+
+
+@dispatcher.add_method
+def exec_cmd(**kwargs):
+    return os.system(kwargs["cmd"])
 
 
 @dispatcher.add_method
@@ -198,6 +205,7 @@ def cli_start_consensus(**kwargs):
 @Request.application
 def application(request):
     # Dispatcher is dictionary {<method_name>: callable}
+    dispatcher["exec_cmd"] = exec_cmd
     dispatcher["cli_init"] = cli_init
     dispatcher["cli_readmsg"] = cli_readmsg
     dispatcher["cli_clearmsg"] = cli_clearmsg
@@ -245,4 +253,14 @@ def application(request):
 
 
 if __name__ == '__main__':
-    run_simple(get_host_ip(), config.PORT, application)
+    opts, args = getopt.getopt(sys.argv[1:], "p:n:")
+    name = "test_service"
+    port = config.PORT
+    for op, value in opts:
+        if op == "-p":
+            port = value
+        elif op == "-n":
+            name = value
+    setproctitle.setproctitle(name)
+
+    run_simple(get_host_ip(), port, application)
