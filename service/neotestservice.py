@@ -263,4 +263,4 @@ if __name__ == '__main__':
             name = value
     setproctitle.setproctitle(name)
 
-    run_simple(get_host_ip(), port, application)
+    run_simple(get_host_ip(), int(port), application)

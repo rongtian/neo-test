@@ -38,7 +38,7 @@ class test_cli(ParametrizedTestCase):
         except Exception as e:
             logger.error(traceback.format_exc())
 
-    '''
+    
     def test_02_openwallet(self):
         try:
             self.clicon.open_wallet("test.json", "11111111")
@@ -49,7 +49,7 @@ class test_cli(ParametrizedTestCase):
             logger.error(e.msg)
         except Exception as e:
             logger.error(traceback.format_exc())
-    '''
+  
     def test_03_upgradewallet(self):
         try:
             self.clicon.open_wallet("test.json", "11111111")
@@ -274,5 +274,16 @@ class test_cli(ParametrizedTestCase):
         except Exception as e:
             logger.error(traceback.format_exc())
     '''
+    def test_21_startconsensus(self):
+        try:
+            API.node().clear_block()
+            API.node(1).clear_block()
+            API.node(2).clear_block()
+            API.node(3).clear_block()
+        except AssertError as e:
+            logger.error(e.msg)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+
 if __name__ == '__main__':
     unittest.main()
