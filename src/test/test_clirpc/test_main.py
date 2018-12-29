@@ -274,8 +274,13 @@ class test_cli(ParametrizedTestCase):
         except Exception as e:
             logger.error(traceback.format_exc())
     '''
-    def test_21_startconsensus(self):
+    def test_22(self):
         try:
+            API.clirpc(0).terminate()
+            API.clirpc(1).terminate()
+            API.clirpc(2).terminate()
+            API.clirpc(3).terminate()
+            return
             API.node().clear_block()
             API.node(1).clear_block()
             API.node(2).clear_block()
