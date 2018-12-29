@@ -65,7 +65,7 @@ class NodeApi:
         #     return
         # private_key = paramiko.RSAKey.from_private_key_file("../../resource/id_rsa", "367wxd")
         transport = paramiko.Transport((Config.NODES[remotenode]["ip"], 22))
-        transport.connect(username=Config.NODES[remotenode]["sshuser"], pkey=Config.NODES[remotenode]["sshpwd"])
+        transport.connect(username=Config.NODES[remotenode]["sshuser"], password=Config.NODES[remotenode]["sshpwd"])
         sftp = paramiko.SFTPClient.from_transport(transport)
         if op == "put":
             sftp.put(_from, _to)
