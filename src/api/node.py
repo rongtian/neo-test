@@ -12,11 +12,8 @@ from utils.config import Config
 from utils.logger import LoggerInstance as logger
 from utils.taskdata import Task
 from utils.taskrunner import TaskRunner
-from api.rpc import RPCApi
+from api.apimanager import API
 from utils.error import RPCError
-
-RPC_API = RPCApi()
-
 
 class NodeApi:
     # version   显示当前软件的版本
@@ -91,12 +88,12 @@ class NodeApi:
         if not work:
             return True
 
-        lastheight = RPC_API.getblockcount()
+        lastheight = API.rpc().getblockcount()
         times = 0
         while True:
             time.sleep(1)
             times = times + 1
-            currentheight = RPC_API.getblockcount()
+            currentheight = API.rpc().getblockcount()
             if (lastheight != currentheight):
                 return True
             if (times > Config.GEN_BLOCK_TIMEOUT):
