@@ -265,14 +265,11 @@ class test_cli(ParametrizedTestCase):
 	'''
 	def test_21_startconsensus(self):
 		try:
-			'''
 			API.cli().open_wallet("test.json", "11111111")
 			API.cli().start_consensus()
 			(result, stepname, msg) = API.cli().exec(False)
 			logger.print(msg)
 			API.cli().terminate()
-			'''
-			API.node().sftp_transfer("SFTPTEST.txt", Config.NODES[0]["path"].replace("neo-cli.dll", ""), 0)
 		except AssertError as e:
 			logger.error(e.msg)
 		except Exception as e:

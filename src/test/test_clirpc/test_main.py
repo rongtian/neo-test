@@ -276,6 +276,8 @@ class test_cli(ParametrizedTestCase):
     '''
     def test_22(self):
         try:
+            API.node().sftp_transfer("SFTPTEST.txt", Config.NODES[0]["path"].replace("neo-cli.dll", ""), 0)
+            '''
             API.clirpc(0).terminate()
             API.clirpc(1).terminate()
             API.clirpc(2).terminate()
@@ -294,7 +296,7 @@ class test_cli(ParametrizedTestCase):
             API.clirpc(2).exec(False)
             API.clirpc(3).init("clirpc3", Config.NODES[3]["path"])
             API.clirpc(3).exec(False)
-
+			'''
         except AssertError as e:
             logger.error(e.msg)
         except Exception as e:
