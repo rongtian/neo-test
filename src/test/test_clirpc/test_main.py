@@ -280,6 +280,16 @@ class test_cli(ParametrizedTestCase):
             API.node(1).clear_block()
             API.node(2).clear_block()
             API.node(3).clear_block()
+
+            API.clirpc(0).init("clirpc0", Config.NODES[0]["path"])
+            API.clirpc(0).exec(False)
+            API.clirpc(1).init("clirpc1", Config.NODES[1]["path"])
+            API.clirpc(1).exec(False)
+            API.clirpc(2).init("clirpc2", Config.NODES[2]["path"])
+            API.clirpc(2).exec(False)
+            API.clirpc(3).init("clirpc3", Config.NODES[3]["path"])
+            API.clirpc(3).exec(False)
+
         except AssertError as e:
             logger.error(e.msg)
         except Exception as e:
