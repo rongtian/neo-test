@@ -57,7 +57,7 @@ class NodeApi:
             raise RPCError(json.dumps(response["error"]))
         return response["result"]
 
-    def sftp_transfer(_from, _to, remotenode, op="get"):
+    def sftp_transfer(self, _from, _to, remotenode, op="get"):
         # on local host
         # if _node_index == 0:
         #     cmd = "cp -rf " + _from + " " + _to
