@@ -4,6 +4,8 @@ import urllib.request
 import json
 import time
 import copy
+import os
+import paramiko
 
 import utils.connect
 from utils.config import Config
@@ -55,9 +57,31 @@ class NodeApi:
             raise RPCError(json.dumps(response["error"]))
         return response["result"]
 
-    def clear_block(self):
-        neopath = Config.NODES[self.currentnode]["path"].replace("neo-cli.dll", "")
+    def sftp_transfer(_from, _to, remotenode, op="get"):
+        # on local host
+        # if _node_index == 0:
+        #     cmd = "cp -rf " + _from + " " + _to
+        #     os.system(cmd)
+        #     return
+        # private_key = paramiko.RSAKey.from_private_key_file("../../resource/id_rsa", "367wxd")
+        transport = paramiko.Transport((Config.NODES[remotenode]["ip"], 22))
+        transport.connect(username=Config.NODES[remotenode]["sshuser"], pkey=Config.NODES[remotenode]["sshpwd"])
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        if op == "put":
+            sftp.put(_from, _to)
+        elif op == "get":
+            sftp.get(_from, _to)
+        else:
+            logger.error("operation not supported")
+        transport.close()
 
+    def clear(self, blocks=True, acc=True):
+        neopath = Config.NODES[self.currentnode]["path"].replace("neo-cli.dll", "")
+        cmd = ""
+        if blocks:
+            cmd += neopath + "/Chain_* " + neopath + "/Index_*"
+        if acc:
+            cmd += " *.acc"
         return self.exec_cmd("rm -rf " + neopath + "/Chain_* " + neopath + "/Index_*")
 
     def send_file(self, _from, to):

@@ -53,16 +53,24 @@ class TestMonitor:
     # 恢复测试环境
     def recover_env(self):
         print("recover env...")
-        # restart node
-        API.node().stop_all_nodes()
-        API.node().start_nodes(range(len(Config.NODES)), clear_chain=True, clear_log=True)
-
-        # restart sigserver
+        # close node
         for node_index in range(len(Config.NODES)):
-            API.node().stop_sigsvr(node_index)
-            API.node().start_sigsvr(Config.NODE_PATH + "/wallet.dat", node_index)
+            API.clirpc(node_index).terminate()
         time.sleep(10)
-        return True
+
+        # delete files(需要删除区块链及所有.acc文件)
+        for node_index in range(len(Config.NODES)):
+            API.node(node_index).clear_block()
+        time.sleep(10)
+
+        # copy files(从源文件中copy出需要的.acc文件放到对应根目录)
+        API.node().sftp_transfer(Config.RESOURCE_PATH + "/" + "chain.acc", Config.NODES[0]["path"].replace("neo-cli.dll", ""), 0)
+
+        # start node
+        for node_index in range(len(Config.NODES)):
+            API.clirpc(node_index).init()
+            API.clirpc(node_index).exec(False)
+        time.sleep(10)
 
     def retry(self):
         self.recover_env()

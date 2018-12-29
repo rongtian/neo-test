@@ -2,6 +2,8 @@
 	"NODES": [
 		{
 			"ip": "47.52.252.55",
+			"sshuser": "root",
+			"sshpwd": "NEO@neo.org",
 			"rpcport" : 10003,
 			"stport" : 23606,
 			"walletname" : "1.json",
@@ -9,6 +11,8 @@
 		},
 		{
 			"ip": "47.52.252.55",
+			"sshuser": "root",
+			"sshpwd": "NEO@neo.org",
 			"rpcport" : 20003,
 			"stport" : 23616,
 			"walletname" : "2.json",
@@ -16,6 +20,8 @@
 		},
 		{
 			"ip": "47.52.252.55",
+			"sshuser": "root",
+			"sshpwd": "NEO@neo.org",
 			"rpcport" : 30003,
 			"stport" : 23626,
 			"walletname" : "3.json",
@@ -23,6 +29,8 @@
 		},
 		{
 			"ip": "47.52.252.55",
+			"sshuser": "root",
+			"sshpwd": "NEO@neo.org",
 			"rpcport" : 40003,
 			"stport" : 23636,
 			"walletname" : "4.json",
