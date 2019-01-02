@@ -1,7 +1,7 @@
 {
 	"NODES": [
 		{
-			"ip": "47.52.252.55",
+			"ip": "47.244.25.229",
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 10003,
@@ -10,7 +10,7 @@
 			"path" : "/root/neo/nodes/node1/neo-cli.dll"
 		},
 		{
-			"ip": "47.52.252.55",
+			"ip": "47.244.25.229",
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 20003,
@@ -19,7 +19,7 @@
 			"path" : "/root/neo/nodes/node2/neo-cli.dll"
 		},
 		{
-			"ip": "47.52.252.55",
+			"ip": "47.244.25.229",
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 30003,
@@ -28,7 +28,7 @@
 			"path" : "/root/neo/nodes/node3/neo-cli.dll"
 		},
 		{
-			"ip": "47.52.252.55",
+			"ip": "47.244.25.229",
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 40003,

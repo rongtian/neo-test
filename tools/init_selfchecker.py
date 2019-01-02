@@ -38,7 +38,7 @@ class SelfCheck():
     def copy_node(self):
         # remotenodelastfoldername = remotenodepath.split("/")[:-1]
         for node_index in range(len(Config.NODES)):
-            remotenodepath = Config.NODES[0]["path"].replace("neo-cli.dll", "")
+            remotenodepath = Config.NODES[node_index]["path"].replace("neo-cli.dll", "")
             remotenodeprepath = "/".join(remotenodepath.split("/")[:-1])
             API.clirpc().exec_cmd("mkdir -p " + remotenodeprepath)
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/neo-cli.tar.gz", "/root/neo-cli.tar.gz", node_index)
@@ -47,7 +47,7 @@ class SelfCheck():
 
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/node" + str(node_index) + "/config.json", remotenodepath, node_index)
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/node" + str(node_index) + "/protocol.json", remotenodepath, node_index)
-            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/node" + str(node_index) + "/wallet.json", remotenodepath, node_index)
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/wallet/" + Config.NODES[node_index]["walletname"], remotenodepath, node_index)
 
     def check_connected_nodes(self):
         logger.info("----------------------------------")
