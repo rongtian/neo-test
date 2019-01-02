@@ -552,9 +552,10 @@ class CLIApi:
         self.endcmd(name)
 
     # export blocks [path=chain.acc]    导出全部区块数据，导出的结果可以用作离线同步
-    def export_all_blocks(self, path=None, exceptfunc=None):
+    def export_all_blocks(self, path=None, exceptfunc=None, timeout=30):
         name = "export_all_blocks"
         self.begincmd(name)
+        self.logfile.write("set timeout " + str(timeout) + "\n")
         if path is None:
             self.writesend("export blocks")
         else:
@@ -565,7 +566,7 @@ class CLIApi:
         self.endcmd(name)
 
     # export blocks <start> [count] 从指定区块高度导出指定数量的区块数据，导出的结果可以用作离线同步
-    def export_blocks(self, start=None, count=None, exceptfunc=None):
+    def export_blocks(self, start=None, count=None, exceptfunc=None, timeout=30):
         name = "export_blocks"
         self.begincmd(name)
         params = []
@@ -573,6 +574,7 @@ class CLIApi:
             params.append(str(start))
         if count is not None:
             params.append(str(count))
+        self.logfile.write("set timeout " + str(timeout) + "\n")
         self.writesend("export blocks " + " ".join(params))
         self.waitnext()
         # register except function
