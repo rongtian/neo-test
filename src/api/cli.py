@@ -128,6 +128,13 @@ class CLIApi:
         for index in range(times):
             self.writeexcept("*neo>")
 
+    def waitgenblock(self):
+        self.logfile.write("set timeout 5\n")
+        self.writeexcept("*neo>")
+        self.writeexcept("*neo>")
+        self.writeexcept("*neo>")
+        self.writeexcept("*neo>")
+
     def waitsync(self, timeoout=30):
         self.process.stdin.write("show state\n")
         timeoutflag = 0
