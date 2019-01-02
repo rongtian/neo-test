@@ -88,10 +88,7 @@ class NodeApi:
     def send_file(self, _from, to):
         pass
 
-    def wait_gen_block(self, work=False):
-        if not work:
-            return True
-
+    def wait_gen_block(self):
         lastheight = RPCApi().getblockcount()
         times = 0
         while True:
