@@ -79,7 +79,7 @@ def con_rpc(ip, request):
             con_url = "http://" + ip + "/jsonrpc"
         else:
             con_url = Config.RPC_URL
-        response = requests.post(con_url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=10)
+        response = requests.post(con_url, data=json.dumps(request).replace("\"num#!#start-", "").replace("-num#!#end\"", ""), headers=Config.RPC_HEADERS, timeout=10)
         return response.json()
     except Exception as e:
         logger.error("con_rpc:" + str(e.args[0]))
@@ -142,7 +142,7 @@ def con_test_service(ip, request):
         else:
             con_url = "http://127.0.0.1:23635/jsonrpc"
 
-        response = requests.post(con_url, data=json.dumps(request), headers=Config.RPC_HEADERS, timeout=15)
+        response = requests.post(con_url, data=json.dumps(request).replace("\"num#!#start-", "").replace("-num#!#end\"", ""), headers=Config.RPC_HEADERS, timeout=15)
         return response.json()
     except Exception as e:
         logger.error("con_test_service:" + str(e.args[0]))

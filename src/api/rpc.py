@@ -25,6 +25,12 @@ class RPCApi:
     def setnode(self, node):
         self.currentnode = node
 
+    def num2str(self, num):
+        if num is not None or isinstance(num, int) or isinstance(num, float):
+            return "num#!#start-%.20f-num#!#end" % num
+        else:
+            return num
+
     def simplerun(self, rpcmethod, params, jsonrpc='2.0', id=1):
         request = copy.copy(RPCApi.REQUEST_BODY)
         request["method"] = rpcmethod
@@ -201,9 +207,9 @@ class RPCApi:
         if to is not None:
             params.append(to)
         if value is not None:
-            params.append(value)
+            params.append(self.num2str(value))
         if fee is not None:
-            params.append(fee)
+            params.append(self.num2str(fee))
         return self.simplerun("sendfrom", params)
 
     def sendrawtransaction(self, hex=None):
@@ -219,9 +225,9 @@ class RPCApi:
         if address is not None:
             params.append(address)
         if value is not None:
-            params.append(value)
+            params.append(self.num2str(value))
         if fee is not None:
-            params.append(fee)
+            params.append(self.num2str(fee))
         if change_address is not None:
             params.append(change_address)
         return self.simplerun("sendtoaddress", params)

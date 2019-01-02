@@ -12,6 +12,7 @@ pip3 install json-rpc
 pip3 install leveldb
 pip3 install setproctitle
 pip3 install paramiko --user
+pip3 install numpy
 
 chmod 777 tools/deploy_contract.sh
 chmod 777 run_all.sh

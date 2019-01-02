@@ -6,6 +6,8 @@ from utils.config import Config
 from utils.common import Common
 from utils.logger import LoggerInstance as logger
 from utils.error import RuntimeError
+import numpy as np
+np.set_printoptions(suppress=True)
 
 
 class TaskRunner:
@@ -28,7 +30,7 @@ class TaskRunner:
         cfg_request = cfg_content["REQUEST"]
         cfg_response = cfg_content["RESPONSE"]
         if process_log:
-            logger.print("[ REQUEST  ]" + json.dumps(cfg_content, indent=4))
+            logger.print("[ REQUEST  ]" + json.dumps(cfg_content, indent=4, sort_keys=True).replace("\"num#!#start-", "").replace("-num#!#end\"", ""))
 
         # (result, response) = self.multithread_run(logger, cfg_request, cfg_response)
         node_index = task.node_index()
