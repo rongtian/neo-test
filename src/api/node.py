@@ -6,14 +6,18 @@ import time
 import copy
 import os
 import paramiko
+import sys
+
+sys.path.append('..')
+sys.path.append('../src')
 
 import utils.connect
 from utils.config import Config
 from utils.logger import LoggerInstance as logger
 from utils.taskdata import Task
 from utils.taskrunner import TaskRunner
-from api.apimanager import API
 from utils.error import RPCError
+from api.rpc import RPCApi
 
 class NodeApi:
     # version   显示当前软件的版本
@@ -88,12 +92,12 @@ class NodeApi:
         if not work:
             return True
 
-        lastheight = API.rpc().getblockcount()
+        lastheight = RPCApi().getblockcount()
         times = 0
         while True:
             time.sleep(1)
             times = times + 1
-            currentheight = API.rpc().getblockcount()
+            currentheight = RPCApi().getblockcount()
             if (lastheight != currentheight):
                 return True
             if (times > Config.GEN_BLOCK_TIMEOUT):

@@ -3,6 +3,7 @@ import sys
 import logging
 
 sys.path.append('..')
+sys.path.append('../src')
 
 from utils.config import Config
 from api.apimanager import API
@@ -36,8 +37,11 @@ class SelfCheck():
             API.clirpc(node_index).exec(False)
 
     def copy_node(self):
+        logger.info("----------------------------------")
+        logger.info("begin copy node\n")
         # remotenodelastfoldername = remotenodepath.split("/")[:-1]
         for node_index in range(len(Config.NODES)):
+            logger.info("copy node[" + str(node_index) + "]\n")
             remotenodepath = Config.NODES[node_index]["path"].replace("neo-cli.dll", "")
             remotenodeprepath = "/".join(remotenodepath.split("/")[:-1])
             API.clirpc().exec_cmd("mkdir -p " + remotenodeprepath)
@@ -48,6 +52,8 @@ class SelfCheck():
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/node" + str(node_index) + "/config.json", remotenodepath, node_index)
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/node" + str(node_index) + "/protocol.json", remotenodepath, node_index)
             API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/wallet/" + Config.NODES[node_index]["walletname"], remotenodepath, node_index)
+        logger.info("end copy node")
+        logger.info("----------------------------------\n\n")
 
     def check_connected_nodes(self):
         logger.info("----------------------------------")

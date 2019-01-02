@@ -1,6 +1,10 @@
 # -*- coding:utf-8 -*-
 import copy
 import json
+import sys 
+
+sys.path.append('..')
+sys.path.append('../src')
 
 from utils.taskdata import Task
 from utils.taskrunner import TaskRunner
