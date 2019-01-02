@@ -35,7 +35,7 @@ class SelfCheck():
 
     def start_nodes(self):
         for node_index in range(len(Config.NODES)):
-            API.clirpc(node_index).init()
+            API.clirpc(node_index).init("start_node", Config.NODES[node_index]["path"])
             API.clirpc(node_index).exec(False)
 
     def clear_nodes(self):
@@ -58,7 +58,7 @@ class SelfCheck():
             remotenodeprepath = "/".join(remotenodepath.split("/")[:-1])
             API.node(node_index).exec_cmd("mkdir -p " + remotenodeprepath)
             if lastip == Config.NODES[node_index]["ip"]:
-                logger.info(lastip, "neo-cli.tar.gz has already exist...")
+                logger.info(lastip + " neo-cli.tar.gz has already exist...")
             else:
                 logger.info("begin transfer file" + Config.RESOURCE_PATH + "/nodes/neo-cli.tar.gz" + "\n")
                 API.node(node_index).exec_cmd("rm -rf " + "/root/neo-cli.tar.gz")
@@ -66,12 +66,13 @@ class SelfCheck():
                 logger.info("end transfer file" + Config.RESOURCE_PATH + "/nodes/neo-cli.tar.gz" + "\n")
             API.node(node_index).exec_cmd("tar -xvf /root/neo-cli.tar.gz -C " + remotenodeprepath)
             # API.node(node_index).exec_cmd("mv " + remotenodeprepath + "/neo-cli " + remotenodepath)
-
-            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/config.json", remotenodepath, node_index, "put")
-            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/protocol.json", remotenodepath, node_index, "put")
-            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/wallet/" + Config.NODES[node_index]["walletname"], remotenodepath, node_index, "put")
+            if node_index == 0:
+                API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/chain.acc", remotenodepath + "/chain.acc", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/config.json", remotenodepath + "/config.json", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/protocol.json", remotenodepath + "/protocol.json", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/wallet/" + Config.NODES[node_index]["walletname"], remotenodepath + "/" + Config.NODES[node_index]["walletname"], node_index, "put")
             lastip = Config.NODES[node_index]["ip"]
-        logger.info("end copy node")
+        logger.info("end copy node\n")
         logger.info("----------------------------------\n\n")
 
     def check_connected_nodes(self):
@@ -102,11 +103,11 @@ def num2str(num):
 if __name__ == "__main__":
     # get config
     # initconfig.get_init_config()
-    jsonss = {"test": num2str(0.00000000001)}
-    print(json.dumps(jsonss).replace("\"num#!#start-", "").replace("-num#!#end\"", ""))
+    # jsonss = {"test": num2str(0.00000000001)}
+    # print(json.dumps(jsonss).replace("\"num#!#start-", "").replace("-num#!#end\"", ""))
     # print(": ", np.array([0.00000000001])[0])
     # str1 = "num:%.20f"%0.00000000001234
     # print(type(1111212121212121212121212121212))
     # start self check
-    # selfcheck = SelfCheck()
-    # selfcheck.check_all()
+    selfcheck = SelfCheck()
+    selfcheck.check_all()

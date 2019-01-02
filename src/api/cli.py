@@ -140,7 +140,8 @@ class CLIApi:
                 block1 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(1)
                 block2 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(2)
                 block3 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(3)
-                if block1 > 0 and block1 == block2 and block1 == block3:
+                connected = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(4)
+                if block1 > 0 and block1 == block2 and block1 == block3 and connected > 0:
                     self.process.stdin.write("\n")
                     return True
             if timeoutflag > timeoout:
