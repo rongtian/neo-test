@@ -94,20 +94,6 @@ class SelfCheck():
         self.start_nodes()
         self.check_connected_nodes()
 
-def num2str(num):
-        if num is not None or isinstance(num, int) or isinstance(num, float):
-            return "num#!#start-%.20f-num#!#end" % num
-        else:
-            return num
-
 if __name__ == "__main__":
-    # get config
-    # initconfig.get_init_config()
-    # jsonss = {"test": num2str(0.00000000001)}
-    # print(json.dumps(jsonss).replace("\"num#!#start-", "").replace("-num#!#end\"", ""))
-    # print(": ", np.array([0.00000000001])[0])
-    # str1 = "num:%.20f"%0.00000000001234
-    # print(type(1111212121212121212121212121212))
-    # start self check
     selfcheck = SelfCheck()
     selfcheck.check_all()

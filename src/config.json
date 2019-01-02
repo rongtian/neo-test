@@ -35,6 +35,15 @@
 			"stport" : 23636,
 			"walletname" : "4.json",
 			"path" : "/root/neo/nodes/node4/neo-cli.dll"
+		},
+		{
+			"ip": "47.244.25.229",
+			"sshuser": "root",
+			"sshpwd": "NEO@neo.org",
+			"rpcport" : 50003,
+			"stport" : 23646,
+			"walletname" : "5.json",
+			"path" : "/root/neo/nodes/node5/neo-cli.dll"
 		}
 	],
 	"WALLETS": [
