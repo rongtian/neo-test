@@ -13,7 +13,7 @@ do
 	number=$?
 	if [ $number -eq 0 ]          
 	then
-		cd /home/ubuntu/ontology/test_service/; ./run.sh -c 1
+		cd /root/neo/neo-test/service/; ./run.sh -c 1
 	fi 
 	sleep 5
 done
