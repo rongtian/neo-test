@@ -159,6 +159,8 @@ class CLIApi:
 
     def exec(self, exitatlast=True):
         if exitatlast:
+            self.writeline("set timeout 5\n")
+            self.waitnext()
             self.exit()
         else:
             self.writeline("interact")
