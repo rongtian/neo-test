@@ -506,7 +506,7 @@ class CLIApi:
         name = "sign"
         self.begincmd(name)
         if jsonobj is not None:
-            self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+            self.writesend("sign " + jsonobj.replace("\"", "\\\"").replace(" ", "").replace("[", "\[").replace("}", "\}"))
         else:
             self.writesend("sign")
 
@@ -520,7 +520,7 @@ class CLIApi:
         name = "relay"
         self.begincmd(name)
         if jsonobj is not None:
-            self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", ""))
+            self.writesend("relay " + jsonobj.replace("\"", "\\\"").replace(" ", "").replace("[", "\[").replace("}", "\}"))
         else:
             self.writesend("relay")
         self.waitnext()
