@@ -26,7 +26,7 @@ class RPCApi:
         self.currentnode = node
 
     def num2str(self, num):
-        if num is not None or isinstance(num, int) or isinstance(num, float):
+        if num is not None and (isinstance(num, int) or isinstance(num, float)):
             return "num#!#start-%.20f-num#!#end" % num
         else:
             return num
@@ -57,25 +57,25 @@ class RPCApi:
 
     def dumpprivkey(self, address=None):
         params = []
-        if address is not None:
+        if address != "empty":
             params.append(address)
         return self.simplerun("dumpprivkey", params)
 
     def getaccountstate(self, address=None):
         params = []
-        if address is not None:
+        if address != "empty":
             params.append(address)
         return self.simplerun("getaccountstate", params)
 
     def getassetstate(self, asset_id=None):
         params = []
-        if asset_id is not None:
+        if asset_id != "empty":
             params.append(asset_id)
         return self.simplerun("getassetstate", params)
 
     def getbalance(self, asset_id=None):
         params = []
-        if asset_id is not None:
+        if asset_id != "empty":
             params.append(asset_id)
         return self.simplerun("getbalance", params)
 
@@ -84,9 +84,9 @@ class RPCApi:
 
     def getblock(self, hash=None, verbose=None):
         params = []
-        if hash is not None:
+        if hash != "empty":
             params.append(hash)
-        if verbose is not None:
+        if verbose != "empty":
             params.append(verbose)
         return self.simplerun("getblock", params)
 
@@ -95,21 +95,21 @@ class RPCApi:
 
     def getblockheader(self, hash=None, verbose=None):
         params = []
-        if hash is not None:
+        if hash != "empty":
             params.append(hash)
-        if verbose is not None:
+        if verbose != "empty":
             params.append(verbose)
         return self.simplerun("getblockheader", params)
 
     def getblockhash(self, index=None):
         params = []
-        if index is not None:
+        if index != "empty":
             params.append(index)
         return self.simplerun("getblockhash", params)
 
     def getblocksysfee(self, index=None):
         params = []
-        if index is not None:
+        if index != "empty":
             params.append(index)
         return self.simplerun("getblocksysfee", params)
 
@@ -118,7 +118,7 @@ class RPCApi:
 
     def getcontractstate(self, script_hash=None):
         params = []
-        if script_hash is not None:
+        if script_hash != "empty":
             params.append(script_hash)
         return self.simplerun("getcontractstate", params)
 
@@ -132,25 +132,25 @@ class RPCApi:
 
     def getrawtransaction(self, txid=None, verbose=None):
         params = []
-        if txid is not None:
+        if txid != "empty":
             params.append(txid)
-        if verbose is not None:
+        if verbose != "empty":
             params.append(verbose)
         return self.simplerun("getrawtransaction", params)
 
     def getstorage(self, script_hash=None, key=None):
         params = []
-        if script_hash is not None:
+        if script_hash != "empty":
             params.append(script_hash)
-        if key is not None:
+        if key != "empty":
             params.append(key)
         return self.simplerun("getstorage", params)
 
     def gettxout(self, txid=None, n=0):
         params = []
-        if txid is not None:
+        if txid != "empty":
             params.append(txid)
-        if n is not None:
+        if n != "empty":
             params.append(n)
         return self.simplerun("gettxout", params)
 
@@ -172,25 +172,25 @@ class RPCApi:
 
     def invoke(self, scripthash=None, params=None):
         iparams = []
-        if scripthash is not None:
+        if scripthash != "empty":
             iparams.append(scripthash)
-        if params is not None:
+        if params != "empty":
             iparams.append(params)
         return self.simplerun("invoke", iparams)
 
     def invokefunction(self, scripthash=None, operation=None, params=None):
         iparams = []
-        if scripthash is not None:
+        if scripthash != "empty":
             iparams.append(scripthash)
-        if operation is not None:
+        if operation != "empty":
             iparams.append(operation)
-        if params is not None:
+        if params != "empty":
             iparams.append(params)
         return self.simplerun("invokefunction", iparams)
 
     def invokescript(self, script=None):
         params = []
-        if script is not None:
+        if script != "empty":
             params.append(script)
         return self.simplerun("invokescript", params)
 
@@ -200,46 +200,46 @@ class RPCApi:
 
     def sendfrom(self, asset_id=None, _from=None, to=None, value=None, fee=None):
         params = []
-        if asset_id is not None:
+        if asset_id != "empty":
             params.append(asset_id)
-        if _from is not None:
+        if _from != "empty":
             params.append(_from)
-        if to is not None:
+        if to != "empty":
             params.append(to)
-        if value is not None:
+        if value != "empty":
             params.append(self.num2str(value))
-        if fee is not None:
+        if fee != "empty":
             params.append(self.num2str(fee))
         return self.simplerun("sendfrom", params)
 
     def sendrawtransaction(self, hex=None):
         params = []
-        if hex is not None:
+        if hex != "empty":
             params.append(hex)
         return self.simplerun("sendrawtransaction", params)
 
     def sendtoaddress(self, asset_id=None, address=None, value=None, fee=None, change_address=None):
         params = []
-        if asset_id is not None:
+        if asset_id != "empty":
             params.append(asset_id)
-        if address is not None:
+        if address != "empty":
             params.append(address)
-        if value is not None:
+        if value != "empty":
             params.append(self.num2str(value))
-        if fee is not None:
+        if fee != "empty":
             params.append(self.num2str(fee))
-        if change_address is not None:
+        if change_address != "empty":
             params.append(change_address)
         return self.simplerun("sendtoaddress", params)
 
     def sendmany(self, params=None):
         iparams = []
-        if params is not None:
+        if params != "empty":
             iparams.append(params)
         return self.simplerun("sendmany", iparams)
 
     def validateaddress(self, address=None):
         params = []
-        if address is not None:
+        if address != "empty":
             params.append(address)
         return self.simplerun("validateaddress", params)
