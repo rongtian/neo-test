@@ -533,7 +533,7 @@ class CLIApi:
         self.writesend("show state")
         for index in range(times):
             self.writeexcept("block:*")
-        self.writeexcept("exit")
+        self.writesend("\n")
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
