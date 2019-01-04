@@ -16,6 +16,7 @@ class CLIReadThread(threading.Thread):
         self.process = process
         self.readlines = ""
         self.statefinish = False
+        self.terminate = False
 
     def lines(self):
         return self.readlines
@@ -39,6 +40,9 @@ class CLIReadThread(threading.Thread):
     def run(self):
         # trycount = 0
         while True:
+            if self.terminate is True:
+                print("msg thread terminate success.")
+                break
             global readlock
             readlock.acquire()
             line = self.process.stdout.readline()
@@ -56,7 +60,7 @@ class CLIReadThread(threading.Thread):
                 # else:
                     # trycount += 1
                 self.statefinish = True
-                time.sleep(1)
+                time.sleep(0.5)
 
 
 class CLIApi:
@@ -121,20 +125,18 @@ class CLIApi:
 
     def terminate(self):
         try:
+            self.readthread.terminate = True
             os.system("kill -9 " + str(self.process_pid))
         except Exception as e:
             print(e)
 
-    def waitnext(self, times=1):
+    def waitnext(self, timeout=5, times=1):
+        self.writeline("set timeout " + str(timeout))
         for index in range(times):
             self.writeexcept("*neo>")
 
     def waitgenblock(self):
-        self.logfile.write("set timeout 5\n")
-        self.writeexcept("*neo>")
-        self.writeexcept("*neo>")
-        self.writeexcept("*neo>")
-        self.writeexcept("*neo>")
+        self.waitnext(timeout=5, times=4)
 
     def waitsync(self, timeoout=30):
         self.process.stdin.write("show state\n")
@@ -275,7 +277,7 @@ class CLIApi:
         else:
             self.writesend("")
         # register except function
-        self.waitnext(1)
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -293,7 +295,7 @@ class CLIApi:
             self.writesend(password)
         else:
             self.writesend("")
-        self.waitnext(1)
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -307,7 +309,7 @@ class CLIApi:
         else:
             self.writesend("upgrade wallet")
         # register except function
-        self.waitnext(1)
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -325,7 +327,7 @@ class CLIApi:
         self.begincmd(name)
         self.writesend("rebuild index")
         # register except function
-        self.waitnext(1)
+        self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -457,7 +459,7 @@ class CLIApi:
             self.writesend(password)
         else:
             self.writesend("")
-        self.waitnext(1)
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
