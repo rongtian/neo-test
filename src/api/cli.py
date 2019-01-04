@@ -41,6 +41,9 @@ class CLIReadThread(threading.Thread):
         # trycount = 0
         while True:
             if self.terminate is True:
+                self.process.wait()
+                self.process.stdout.close()
+                self.process.stdin.close()
                 print("msg thread terminate success.")
                 break
             global readlock
@@ -411,12 +414,11 @@ class CLIApi:
     def create_address(self, n=None, exceptfunc=None, timeout=30):
         name = "create_address"
         self.begincmd(name)
-        self.writeline("set timeout " + str(timeout))
         if n is None:
             self.writesend("create address")
         else:
             self.writesend("create address " + str(n))
-        self.waitnext()
+        self.waitnext(timeout=timeout)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -428,13 +430,12 @@ class CLIApi:
     def import_key(self, wif_path=None, exceptfunc=None, timeout=30):
         name = "import_key"
         self.begincmd(name)
-        self.writeline("set timeout " + str(timeout))
         if wif_path is not None:
             self.writesend("import key " + str(wif_path))
         else:
             self.writesend("import key")
         # register except function
-        self.waitnext()
+        self.waitnext(timeout=timeout)
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
 
@@ -573,12 +574,11 @@ class CLIApi:
     def export_all_blocks(self, path=None, exceptfunc=None, timeout=30):
         name = "export_all_blocks"
         self.begincmd(name)
-        self.logfile.write("set timeout " + str(timeout) + "\n")
         if path is None:
             self.writesend("export blocks")
         else:
             self.writesend("export blocks " + path)
-        self.waitnext()
+        self.waitnext(timeout=timeout)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -592,9 +592,8 @@ class CLIApi:
             params.append(str(start))
         if count is not None:
             params.append(str(count))
-        self.logfile.write("set timeout " + str(timeout) + "\n")
         self.writesend("export blocks " + " ".join(params))
-        self.waitnext()
+        self.waitnext(timeout=timeout)
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
