@@ -198,7 +198,7 @@ class RPCApi:
         params = []
         return self.simplerun("listaddress", [])
 
-    def sendfrom(self, asset_id=None, _from=None, to=None, value=None, fee=None):
+    def sendfrom(self, asset_id=None, _from=None, to=None, value=None, fee=None, change_address=None):
         params = []
         if asset_id != "empty":
             params.append(asset_id)
@@ -210,6 +210,8 @@ class RPCApi:
             params.append(self.num2str(value))
         if fee != "empty":
             params.append(self.num2str(fee))
+        if change_address != "empty":
+            params.append(change_address)
         return self.simplerun("sendfrom", params)
 
     def sendrawtransaction(self, hex=None):
