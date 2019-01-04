@@ -37,7 +37,7 @@ class CLIReadThread(threading.Thread):
         self.readlines = ""
 
     def run(self):
-        trycount = 0
+        # trycount = 0
         while True:
             global readlock
             readlock.acquire()
@@ -47,14 +47,15 @@ class CLIReadThread(threading.Thread):
                 self.readlines += re.sub('\x1b.*?m', '', line).replace("\x00", "")
                 pass
             else:
-                if trycount > 2:
-                    self.statefinish = True
+                # if trycount > 2:
+                    # self.statefinish = True
                     # self.process.wait()
                     # self.process.stdout.close()
                     # self.process.stdin.close()
                     # break
-                else:
-                    trycount += 1
+                # else:
+                    # trycount += 1
+                self.statefinish = True
                 time.sleep(1)
 
 
@@ -183,13 +184,13 @@ class CLIApi:
                     msg = self.readthread.lines()
                     break
                 else:
-                    time.sleep(1)
+                    time.sleep(0.5)
             else:
                 if self.readthread.isfinish() or self.readthread.isblock():
                     msg = self.readthread.lines()
                     break
                 else:
-                    time.sleep(1)
+                    time.sleep(0.5)
 
         msgblocks = {}
         lines = msg.split('\n')
