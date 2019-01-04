@@ -5,6 +5,7 @@
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 10003,
+			"listenport" : 10001,
 			"stport" : 23606,
 			"walletname" : "1.json",
 			"path" : "/root/neo/nodes/node1/neo-cli.dll"
@@ -14,6 +15,7 @@
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 20003,
+			"listenport" : 20001,
 			"stport" : 23616,
 			"walletname" : "2.json",
 			"path" : "/root/neo/nodes/node2/neo-cli.dll"
@@ -23,6 +25,7 @@
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 30003,
+			"listenport" : 30001,
 			"stport" : 23626,
 			"walletname" : "3.json",
 			"path" : "/root/neo/nodes/node3/neo-cli.dll"
@@ -32,6 +35,7 @@
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 40003,
+			"listenport" : 40001,
 			"stport" : 23636,
 			"walletname" : "4.json",
 			"path" : "/root/neo/nodes/node4/neo-cli.dll"
@@ -41,6 +45,7 @@
 			"sshuser": "root",
 			"sshpwd": "NEO@neo.org",
 			"rpcport" : 50003,
+			"listenport" : 50001,
 			"stport" : 23646,
 			"walletname" : "5.json",
 			"path" : "/root/neo/nodes/node5/neo-cli.dll"

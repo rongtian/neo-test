@@ -49,13 +49,13 @@ class CLIReadThread(threading.Thread):
             else:
                 if trycount > 2:
                     self.statefinish = True
-                    self.process.wait()
-                    self.process.stdout.close()
-                    self.process.stdin.close()
-                    break
+                    # self.process.wait()
+                    # self.process.stdout.close()
+                    # self.process.stdin.close()
+                    # break
                 else:
-                    time.sleep(1)
                     trycount += 1
+                time.sleep(1)
 
 
 class CLIApi:
@@ -405,14 +405,15 @@ class CLIApi:
         self.endcmd(name)
 
     # create address [n=1]  创建地址 / 批量创建地址   需要打开钱包
-    def create_address(self, n=None, exceptfunc=None):
+    def create_address(self, n=None, exceptfunc=None, timeout=30):
         name = "create_address"
         self.begincmd(name)
+        self.writeline("set timeout " + str(timeout))
         if n is None:
             self.writesend("create address")
         else:
             self.writesend("create address " + str(n))
-        self.waitnext(1)
+        self.waitnext()
         # register except function
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
         self.endcmd(name)
@@ -421,9 +422,10 @@ class CLIApi:
     # examples:
     # import key L4zRFphDJpLzXZzYrYKvUoz1LkhZprS5pTYywFqTJT2EcmWPPpPH
     # import key key.txt
-    def import_key(self, wif_path=None, exceptfunc=None):
+    def import_key(self, wif_path=None, exceptfunc=None, timeout=30):
         name = "import_key"
         self.begincmd(name)
+        self.writeline("set timeout " + str(timeout))
         if wif_path is not None:
             self.writesend("import key " + str(wif_path))
         else:
