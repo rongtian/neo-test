@@ -64,7 +64,12 @@ class TestMonitor:
         time.sleep(10)
 
         # copy files(从源文件中copy出需要的.acc文件放到对应根目录)
-        API.node().sftp_transfer(Config.RESOURCE_PATH + "/" + "chain.acc", Config.NODES[0]["path"].replace("neo-cli.dll", ""), 0)
+        for node_index in range(len(Config.NODES)):
+            remotenodepath = Config.NODES[node_index]["path"].replace("neo-cli.dll", "")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/chain.acc", remotenodepath + "/chain.acc", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/config.json", remotenodepath + "/config.json", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/nodes/node" + str(node_index + 1) + "/protocol.json", remotenodepath + "/protocol.json", node_index, "put")
+            API.node(node_index).sftp_transfer(Config.RESOURCE_PATH + "/wallet/" + Config.NODES[node_index]["walletname"], remotenodepath + "/" + Config.NODES[node_index]["walletname"], node_index, "put")
 
         # start node
         for node_index in range(len(Config.NODES)):
