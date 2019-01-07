@@ -51,7 +51,7 @@ class CLIReadThread(threading.Thread):
             line = self.process.stdout.readline()
             readlock.release()
             if line != "":
-                self.readlines += re.sub('\x1b.*?m', '', line).replace("\x00", "")
+                self.readlines += re.sub('\x1b.*?m', '', line).replace("\x00", "").replace("\x1b[H\x1b[2J", "")
                 pass
             else:
                 # if trycount > 2:
@@ -146,6 +146,10 @@ class CLIApi:
         self.process.stdin.flush()
         timeoutflag = 0
         while True:
+            if timeoutflag > timeoout:
+                self.process.stdin.write("\n")
+                self.process.stdin.flush()
+                return False
             time.sleep(1)
             timeoutflag += 1
             if self.readthread is not None or (self.readthread.isfinish() or self.readthread.isblock()):
@@ -153,7 +157,14 @@ class CLIApi:
                 if msg is None:
                     print("no msg readout...")
                     continue
-                lastline = msg.split("\n")[-1]
+                msglist = msg.split("\n")
+                lastline = None
+                if msglist is not None:
+                    for msgline in msglist:
+                        reresult = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', msgline)
+                        if reresult is not None:
+                            lastline = msgline
+                    
                 if lastline is None:
                     print("no msg lastline readout...")
                     continue
@@ -169,16 +180,14 @@ class CLIApi:
                     group = reresult.group()
 
                 if group is not None:
-                    block1 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(1)
-                    block2 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(2)
-                    block3 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(3)
-                    connected = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(4)
+                    block1 = int(re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(1))
+                    block2 = int(re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(2))
+                    block3 = int(re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(3))
+                    connected = int(re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(4))
                     if block1 > 0 and block1 == block2 and block1 == block3 and connected > 0:
                         self.process.stdin.write("\n")
+                        self.process.stdin.flush()
                         return True
-                if timeoutflag > timeoout:
-                    self.process.stdin.write("\n")
-                    return False
 
     def exec(self, exitatlast=True):
         if exitatlast:
