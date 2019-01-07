@@ -256,7 +256,7 @@ class CLIApi:
         self.writesend("exit")
 
     # create wallet <path>  创建钱包文件
-    def create_wallet(self, filepath=None, password=None, clearfirst=True, exceptfunc=None):
+    def create_wallet(self, filepath=None, password=None, password2=None, clearfirst=True, exceptfunc=None):
         name = "create_wallet"
         if filepath is not None:
             if clearfirst and os.path.exists(filepath):
@@ -275,8 +275,8 @@ class CLIApi:
             self.writesend("")
         # confirm password
         self.writeexcept("*password:")
-        if password is not None:
-            self.writesend(password)
+        if password2 is not None:
+            self.writesend(password2)
         else:
             self.writesend("")
         # register except function
@@ -304,13 +304,16 @@ class CLIApi:
         self.endcmd(name)
 
     # upgrade wallet <path> 升级旧版钱包文件
-    def upgrade_wallet(self, filepath=None, exceptfunc=None):
+    def upgrade_wallet(self, filepath=None, password=None, exceptfunc=None):
         name = "upgrade_wallet"
         self.begincmd(name)
         if filepath is not None:
             self.writesend("upgrade wallet " + filepath)
         else:
             self.writesend("upgrade wallet")
+        self.writeexcept("*password:")
+        if password is not None:
+            self.writesend(password)
         # register except function
         self.waitnext()
         self.stepexceptfuncs[name + "-" + str(self.stepindex)] = exceptfunc
