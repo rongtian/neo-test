@@ -234,10 +234,14 @@ class RPCApi:
             params.append(change_address)
         return self.simplerun("sendtoaddress", params)
 
-    def sendmany(self, params=None):
+    def sendmany(self, params=None, fee=None, change_address=None):
         iparams = []
         if params != "empty":
             iparams.append(params)
+        if fee != "empty":
+            iparams.append(self.num2str(fee))
+        if change_address != "empty":
+            iparams.append(change_address)
         return self.simplerun("sendmany", iparams)
 
     def validateaddress(self, address=None):
