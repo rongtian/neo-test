@@ -200,7 +200,7 @@ class CLIApi:
         msg = ""
         self.logfile.close()
         self.logfile = None
-        self.process = subprocess.Popen("./" + self.scriptpath, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        self.process = subprocess.Popen("./" + self.scriptpath, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         self.process_pid = self.process.pid
         print("PID:", self.process_pid)
         self.readthread = CLIReadThread(self.process)
