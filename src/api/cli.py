@@ -143,29 +143,42 @@ class CLIApi:
 
     def waitsync(self, timeoout=30):
         self.process.stdin.write("show state\n")
+        self.process.stdin.flush()
         timeoutflag = 0
         while True:
+            time.sleep(1)
+            timeoutflag += 1
             if self.readthread is not None and (self.readthread.isfinish() or self.readthread.isblock()):
                 msg = self.readthread.lines()
+                if msg is None:
+                    print("no msg readout...")
+                    continue
                 lastline = msg.split("\n")[-1]
+                if lastline is None:
+                    print("no msg lastline readout...")
+                    continue
+                else:
+                    print("wait sync: " + lastline)
+
                 reresult = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline)
                 group = None
-                if reresult is not None:
+                if reresult is None:
+                    continue
+                else:
+                    print("valid state infomation...")
                     group = reresult.group()
+
                 if group is not None:
                     block1 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(1)
                     block2 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(2)
                     block3 = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(3)
                     connected = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline).group(4)
                     if block1 > 0 and block1 == block2 and block1 == block3 and connected > 0:
-                        print(lastline)
                         self.process.stdin.write("\n")
                         return True
                 if timeoutflag > timeoout:
                     self.process.stdin.write("\n")
                     return False
-            time.sleep(1)
-            timeoutflag += 1
 
     def exec(self, exitatlast=True):
         if exitatlast:
