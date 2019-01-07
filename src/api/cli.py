@@ -70,6 +70,7 @@ class CLIApi:
     # version   显示当前软件的版本
     def __init__(self, scriptname="", neopath=""):
         # step index
+        self.logfile = None
         self.init(scriptname, neopath)
 
     def init(self, scriptname, neopath):
@@ -84,7 +85,6 @@ class CLIApi:
         self.readthread = None
         self.neopath = neopath
         self.scriptpath = ""
-        self.logfile = None
 
         if self.scriptname == "":
             return
