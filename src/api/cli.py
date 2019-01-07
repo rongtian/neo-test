@@ -146,7 +146,7 @@ class CLIApi:
         timeoutflag = 0
         while True:
             if self.readthread is not None and (self.readthread.isfinish() or self.readthread.isblock()):
-                msg = self.readmsg()
+                msg = self.readthread.lines()
                 lastline = msg.split("\n")[-1]
                 reresult = re.match(r'block: (\d+)/(\d+)/(\d+)  connected: (\d+)  unconnected: (\d+)', lastline)
                 group = None
