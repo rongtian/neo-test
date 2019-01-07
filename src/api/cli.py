@@ -148,7 +148,7 @@ class CLIApi:
         while True:
             time.sleep(1)
             timeoutflag += 1
-            if self.readthread is not None and (self.readthread.isfinish() or self.readthread.isblock()):
+            if self.readthread is not None or (self.readthread.isfinish() or self.readthread.isblock()):
                 msg = self.readthread.lines()
                 if msg is None:
                     print("no msg readout...")
@@ -191,7 +191,7 @@ class CLIApi:
         msg = ""
         self.logfile.close()
         self.logfile = None
-        self.process = subprocess.Popen("./" + self.scriptpath, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        self.process = subprocess.Popen("./" + self.scriptpath, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         self.process_pid = self.process.pid
         print("PID:", self.process_pid)
         self.readthread = CLIReadThread(self.process)
