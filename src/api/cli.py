@@ -103,7 +103,7 @@ class CLIApi:
         os.system("chmod 777 " + self.scriptpath)
 
     def readmsg(self):
-        self.readthread.lines()
+        return self.readthread.lines()
 
     def clearmsg(self):
         self.readthread.clear()
