@@ -71,6 +71,8 @@ class CLIApi:
     def __init__(self, scriptname="", neopath=""):
         # step index
         self.logfile = None
+        self.readthread = None
+        self.process = None
         self.init(scriptname, neopath)
 
     def init(self, scriptname, neopath):
@@ -81,8 +83,6 @@ class CLIApi:
         # scripts folder
         self.prefixful = "cliscripts"
         self.scriptname = scriptname
-        self.process = None
-        self.readthread = None
         self.neopath = neopath
         self.scriptpath = ""
 
